@@ -22,6 +22,9 @@
 //
 #pragma once
 
+#define DES
+//#define MONO
+
 constexpr int DISP_WIDTH = 160;
 constexpr int DISP_HEIGHT = 120;
 
