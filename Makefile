@@ -3,7 +3,7 @@ OBJODIR := obj
 RTLDIR := ../rtl
 
 ifeq ($(VERILATOR_ROOT),)
-VERILATOR_ROOT ?= $(shell bash -c 'verilator -V|grep VERILATOR_ROOT | head -1 | sed -e " s/^.*=\s*//"')
+VERILATOR_ROOT ?= $(shell verilator -getenv VERILATOR_ROOT)
 endif
 VROOT := $(VERILATOR_ROOT)
 VINCD := $(VROOT)/include
