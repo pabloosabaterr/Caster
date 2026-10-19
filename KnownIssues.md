@@ -17,8 +17,9 @@
       also missing registers 48 to 51 from `rtl/defines.vh`.
 - [ ] The OSD enabled in `testmain()` covers 320 x 200 of the 320 x 240
       screen, hiding most of the input image.
-- [ ] `noise.mem` is referenced by bare file name in
-      `blue_noise_dithering.v`, so `$readmem` cannot find it when running
+- [x] `noise.mem` and `default_waveform.mem` are referenced by bare file name
+      in `blue_noise_dithering.v` and `wvfmlut.v`, so `$readmem` only finds
+      them when running from the right directory. `noise.mem` was not found
       from `sim/`.
 - [ ] `TRACE` is defined by default in `main.cpp`, so every run writes all
       signals to `trace.vcd`, which grows fast and slows the simulation down.
@@ -30,7 +31,7 @@
 
 ## Build
 
-- [ ] `rtl.mk` calls `nproc`, which does not exist on macOS
+- [x] `rtl.mk` calls `nproc`, which does not exist on macOS
       (`nproc: command not found`).
 - [ ] Changing a `.v` file does not rebuild the RTL, the `Vcaster__ALL.a`
       rule has no prerequisites. A `make clean` is needed.
@@ -42,11 +43,11 @@
 
 ## Testbench warnings
 
-- [ ] `intapi.cpp:31-32`: unused variables `last_update` and
+- [x] `intapi.cpp:31-32`: unused variables `last_update` and
       `last_update_duration`.
-- [ ] `srcsim.cpp:46`: unused function `rgb2y`.
-- [ ] `vramsim.cpp:44`: unused function `print_pixel`.
-- [ ] `dispsim.cpp:114`: `dispsim_apply` ignores the `gdoe`, `gdclk`, `sdoe`
+- [x] `srcsim.cpp:46`: unused function `rgb2y`.
+- [x] `vramsim.cpp:44`: unused function `print_pixel`.
+- [x] `dispsim.cpp:114`: `dispsim_apply` ignores the `gdoe`, `gdclk`, `sdoe`
       and `dbg` panel signals, so the display model does not check them.
 
 ## RTL lint warnings

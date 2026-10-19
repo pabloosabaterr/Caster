@@ -4,7 +4,7 @@ all: $(TARGET)
 VOBJ ?= build/obj_dir
 CXX   := g++
 FBDIR := ../rtl
-CPUS ?= $(shell bash -c 'nproc --all')
+CPUS ?= $(shell getconf _NPROCESSORS_ONLN)
 VERBOSE ?= 0
 
 .PHONY: all
