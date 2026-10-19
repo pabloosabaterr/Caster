@@ -111,10 +111,14 @@ void dispsim_render() {
         SDL_Delay(time_to_wait);
 }
 
-void dispsim_apply(uint32_t *pixels, const uint8_t gdoe,
-        const uint8_t gdclk, const uint8_t gdsp, const uint8_t sdle,
-        const uint8_t sdoe, const uint8_t sd, const uint8_t sdce0,
-        const uint16_t dbg) {
+void dispsim_apply(uint32_t *pixels,
+                   [[maybe_unused]] const uint8_t gdoe,
+                   [[maybe_unused]] const uint8_t gdclk,
+                   const uint8_t gdsp,
+                   const uint8_t sdle,
+                   [[maybe_unused]] const uint8_t sdoe,
+                   const uint8_t sd, const uint8_t sdce0,
+                   [[maybe_unused]] const uint16_t dbg) {
     // SDLE = Hsync
     // GDSP = ~ Vsync
     // SDCE0 = ~ DE

@@ -41,6 +41,7 @@ void vramsim_reset() {
     last_trigger = 0;
 }
 
+[[maybe_unused]]
 static void print_pixel(uint16_t pixel) {
     int mode = ((pixel >> 14) & 0x3);
     int fcnt = ((pixel >> 4) & 0x3f);

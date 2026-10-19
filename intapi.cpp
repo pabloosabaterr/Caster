@@ -28,8 +28,6 @@
 #include "spisim.h"
 
 static UPDATE_MODE current_mode;
-static size_t last_update;
-static size_t last_update_duration;
 static uint8_t waveform_frames;
 
 static uint8_t get_update_frames(void) {
