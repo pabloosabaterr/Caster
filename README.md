@@ -1,5 +1,10 @@
 # Caster simulator
 
+> [!WARNING]
+> The simulator does not build natively on Windows. Use
+> [WSL](https://learn.microsoft.com/windows/wsl/install) and follow the Linux
+> instructions.
+
 ## Getting started
 
 To make it work you'll need:
@@ -32,12 +37,5 @@ make
 ```
 
 `make DEVELOPER=1` builds with `-Wextra -Wpedantic -Werror`.
-
-> [!NOTE]
-> The developer build does not compile yet. Build outputs will be moved to
-> `sim/build/`.
-
-`./sim` expects a `texture.jpg` (at least 20 x 20 pixels) in `sim/`,
-otherwise it segfaults.
 
 Issues found so far are tracked in [KnownIssues.md](KnownIssues.md).
