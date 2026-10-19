@@ -27,6 +27,9 @@
 #include <queue>
 #include "spisim.h"
 
+// Uncomment to print every byte received over SPI.
+//#define SPI_VERBOSE
+
 static const int SPI_DIV = 10;
 static int spi_divider = 0;
 static uint8_t spi_tx;
@@ -59,9 +62,11 @@ void spisim_apply(uint8_t &spi_cs, uint8_t &spi_sck, uint8_t &spi_mosi,
             // negedge
             sck = 0;
             if (bit_counter == 0) {
+#ifdef SPI_VERBOSE
                 if (cs == 0) {
                     printf("RX byte: %02x\n", spi_rx);
                 }
+#endif
                 if (byte_buf.empty()) {
                     // Empty, stop
                     cs = 1;
