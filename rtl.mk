@@ -1,7 +1,7 @@
 TARGET ?= caster
 all: $(TARGET)
 
-VOBJ := obj_dir
+VOBJ ?= build/obj_dir
 CXX   := g++
 FBDIR := ../rtl
 CPUS ?= $(shell bash -c 'nproc --all')
@@ -16,7 +16,7 @@ VERILATOR := verilator
 else
 VERILATOR := $(VERILATOR_ROOT)/bin/verilator
 endif
-VFLAGS := -Wall -Wno-fatal -MMD --trace -cc \
+VFLAGS := -Wall -Wno-fatal -MMD --trace -cc --Mdir $(VOBJ) \
 		-I../rtl \
 		-I../rtl/mulib/rtl \
 		-I../rtl/mulib/rtl/baseip \
@@ -31,6 +31,7 @@ $(VOBJ)/V$(TARGET)__ALL.a: $(VOBJ)/V$(TARGET).cpp $(VOBJ)/V$(TARGET).h
 $(VOBJ)/V$(TARGET)__ALL.a: $(VOBJ)/V$(TARGET).mk
 
 $(VOBJ)/V%.cpp $(VOBJ)/V%.h $(VOBJ)/V%.mk: $(FBDIR)/%.v
+	@mkdir -p $(VOBJ)
 	$(VERILATOR) $(VFLAGS) $*.v
 
 $(VOBJ)/V%.cpp: $(VOBJ)/V%.h

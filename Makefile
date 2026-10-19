@@ -1,5 +1,6 @@
-TARGET := sim
-OBJODIR := obj
+BUILDDIR := build
+TARGET := $(BUILDDIR)/sim
+OBJODIR := $(BUILDDIR)/obj
 RTLDIR := ../rtl
 
 ifeq ($(VERILATOR_ROOT),)
@@ -7,7 +8,7 @@ VERILATOR_ROOT ?= $(shell verilator -getenv VERILATOR_ROOT)
 endif
 VROOT := $(VERILATOR_ROOT)
 VINCD := $(VROOT)/include
-RTLOBJDIR := obj_dir
+RTLOBJDIR := $(BUILDDIR)/obj_dir
 RTLOBJ := $(RTLOBJDIR)/Vcaster__ALL.a
 
 CXX ?= g++
@@ -54,7 +55,7 @@ OBJS += $(RTLOBJ)
 
 $(RTLOBJ):
 	@echo Building RTL
-	make -f rtl.mk
+	make -f rtl.mk VOBJ=$(RTLOBJDIR)
 
 $(OBJODIR)/%.o: %.cpp $(RTLOBJ)
 	@echo [CXX] $<
@@ -73,9 +74,7 @@ all: $(OBJS)
 
 PHONY += clean
 clean:
-	make -f rtl.mk clean
-	rm -rf $(OBJODIR)
-	rm -f $(TARGET)
+	rm -rf $(BUILDDIR)
 	@echo 'clean finish'
 
 .PHONY: $(PHONY)
