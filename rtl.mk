@@ -22,7 +22,9 @@ VFLAGS := -Wall -Wno-fatal -MMD --trace -cc --Mdir $(VOBJ) \
 		-I../rtl/mulib/rtl/baseip \
 		-I../rtl/mulib/rtl/baseip/generic \
 		-Wno-PINCONNECTEMPTY \
-		+define+SIMULATION=1
+		+define+SIMULATION=1 \
+		+define+NOISE_MEM=\"$(abspath ../rtl/noise.mem)\" \
+		+define+WAVEFORM_MEM=\"$(abspath default_waveform.mem)\"
 ifeq ($(VERBOSE), 1)
 VFLAGS += +define+VERBOSE=1
 endif
