@@ -6,9 +6,14 @@
 
 ## Runtime
 
-- [ ] `./sim` segfaults if `texture.jpg` is missing. The image is not included
+- [x] `./sim` segfaults if `texture.jpg` is missing. The image is not included
       in the repository and the `stbi_load` result is not checked in
       `srcsim.cpp`.
+- [x] `srcsim.cpp:141`: `texture.jpg` must be exactly 20 x 20. Other sizes
+      give a corrupted sprite, and images under 400 pixels are read out of
+      bounds.
+- [ ] `spisim.cpp:63`: prints every received SPI byte, flooding the terminal
+      during initialization.
 
 ## Build
 

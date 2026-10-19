@@ -62,6 +62,18 @@ static uint8_t rgb2y(uint32_t r, uint32_t g, uint32_t b, int x, int y) {
 #endif
 }
 
+// Wrapper around stbi_load() to prevent segfault when there's no image
+static uint8_t *load_image(const char *fn, int *x, int *y, int *n) {
+    uint8_t *data = stbi_load(fn, x, y, n, 0);
+    if (!data) {
+        fprintf(stderr, "error: cannot load image '%s': %s\n",
+                fn, stbi_failure_reason());
+        exit(EXIT_FAILURE);
+    }
+
+    return data;
+}
+
 void srcsim_next_frame() {
 #if 1 // Bouncing box
     static int x = 0, y = 0;
@@ -116,9 +128,14 @@ void srcsim_next_frame() {
     static bool image_loaded = false;
     static uint8_t image[20*20];
     if (!image_loaded) {
-        int x, y, n;
-        uint8_t *data = stbi_load("texture.jpg", &x, &y, &n, 0);
-        printf("Input image size %d x %d (%d channels)\n", x, y, n);
+        int w, h, n;
+        uint8_t *data = load_image("texture.jpg", &w, &h, &n);
+        printf("Input image size %d x %d (%d channels)\n", w, h, n);
+        if (w != 20 || h != 20) {
+            fprintf(stderr, "error: texture.jpg must be 20 x 20, got %d x %d\n",
+                    w, h);
+            exit(EXIT_FAILURE);
+        }
         //uint8_t *scaled = (uint8_t *)calloc(1, 20 * 20 * n);
         //stbir_resize_uint8(data, x, y, 0, scaled, 20, 20, 0, n);
         //free(data);
@@ -197,7 +214,7 @@ void srcsim_next_frame() {
     char fn[10];
     sprintf(fn, "test%d.jpg", frame_counter / 100);
     int x, y, n;
-    uint8_t *data = stbi_load(fn, &x, &y, &n, 0);
+    uint8_t *data = load_image(fn, &x, &y, &n);
     printf("Input image size %d x %d (%d channels)\n", x, y, n);
     uint8_t *scaled = (uint8_t *)calloc(1, DISP_WIDTH * DISP_HEIGHT * n);
     float scalex, scaley;
@@ -210,8 +227,7 @@ void srcsim_next_frame() {
         outw = x * scaley;
         outoffset = ((DISP_WIDTH - outw) / 2) * n;
         outstride = x * n;
-    }
-    else {
+    } else {
         outw = DISP_WIDTH;
         outh = y * scalex;
         outoffset = ((DISP_HEIGHT - outh) / 2) * n * DISP_WIDTH;
