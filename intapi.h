@@ -70,6 +70,10 @@
 #define CSR_CFG_W2BFRAME    45
 #define CSR_CFG_FASTG_B2GFRAME 46
 #define CSR_CFG_FASTG_W2GFRAME 47
+#define CSR_OSD_SCALE       48
+#define CSR_TONE_ADDR       49
+#define CSR_TONE_WR         50
+#define CSR_INPUT_CTRL      51
 #define CSR_STATUS          128
 #define CSR_ID0             129
 #define CSR_DAMAGE_COUNT_HI 130

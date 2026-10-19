@@ -88,6 +88,10 @@ void testmain(void) {
         spi_write_reg8(CSR_OSD_EN, 1);
         spi_write_reg8(CSR_CFG_MIRROR, 1);
 
+        spi_write_reg8(CSR_TONE_ADDR, 0);
+        for (int i = 0; i < 256; i++)
+            spi_write_reg8(CSR_TONE_WR, i);
+
         spi_write_reg8(CSR_ENABLE, 1); // Enable refresh
         // Read back status
         spi_write_reg8(CSR_STATUS, 0);

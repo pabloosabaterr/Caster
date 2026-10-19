@@ -12,15 +12,33 @@
 - [x] `srcsim.cpp:141`: `texture.jpg` must be exactly 20 x 20. Other sizes
       give a corrupted sprite, and images under 400 pixels are read out of
       bounds.
+- [x] The screen ends up fully black. `testmain()` never loads the tone LUT,
+      which starts zeroed and maps every input pixel to black. `intapi.h` was
+      also missing registers 48 to 51 from `rtl/defines.vh`.
+- [ ] The OSD enabled in `testmain()` covers 320 x 200 of the 320 x 240
+      screen, hiding most of the input image.
+- [ ] `noise.mem` is referenced by bare file name in
+      `blue_noise_dithering.v`, so `$readmem` cannot find it when running
+      from `sim/`.
+- [ ] `TRACE` is defined by default in `main.cpp`, so every run writes all
+      signals to `trace.vcd`, which grows fast and slows the simulation down.
 - [ ] `spisim.cpp:63`: prints every received SPI byte, flooding the terminal
       during initialization.
+- [ ] Options (input pattern, OSD, trace, cycle limit) are set with `#define`
+      and `#if 1` / `#elif 0` chains, so changing them needs a rebuild and the
+      disabled code is never compiled.
 
 ## Build
 
 - [ ] `rtl.mk` calls `nproc`, which does not exist on macOS
       (`nproc: command not found`).
-- [ ] `dispsim.cpp:114`: `dispsim_apply` ignores the `gdoe`, `gdclk`, `sdoe`
-      and `dbg` panel signals, so the display model does not check them.
+- [ ] Changing a `.v` file does not rebuild the RTL, the `Vcaster__ALL.a`
+      rule has no prerequisites. A `make clean` is needed.
+- [ ] Changing a `.h` file does not rebuild the `.cpp` files that include it,
+      no dependency files are generated.
+- [ ] The `all` target relinks on every `make`, even with nothing changed.
+- [ ] Sub-makes are called with `make` instead of `$(MAKE)`, so flags like
+      `-j` are not passed down.
 
 ## Testbench warnings
 
@@ -28,6 +46,8 @@
       `last_update_duration`.
 - [ ] `srcsim.cpp:46`: unused function `rgb2y`.
 - [ ] `vramsim.cpp:44`: unused function `print_pixel`.
+- [ ] `dispsim.cpp:114`: `dispsim_apply` ignores the `gdoe`, `gdclk`, `sdoe`
+      and `dbg` panel signals, so the display model does not check them.
 
 ## RTL lint warnings
 
