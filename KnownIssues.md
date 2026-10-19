@@ -14,6 +14,8 @@
 
 - [ ] `rtl.mk` calls `nproc`, which does not exist on macOS
       (`nproc: command not found`).
+- [ ] `dispsim.cpp:114`: `dispsim_apply` ignores the `gdoe`, `gdclk`, `sdoe`
+      and `dbg` panel signals, so the display model does not check them.
 
 ## Testbench warnings
 

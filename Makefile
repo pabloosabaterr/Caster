@@ -10,33 +10,34 @@ VINCD := $(VROOT)/include
 RTLOBJDIR := obj_dir
 RTLOBJ := $(RTLOBJDIR)/Vcaster__ALL.a
 
-CC = g++
-CXX = g++
-LD = g++
+CXX ?= g++
 SDL_CONFIG = sdl2-config
+DEVELOPER ?= 0
 
 LIBS := -lm $(shell $(SDL_CONFIG) --libs)
 
-COMMONFLAGS := \
+CXXFLAGS := \
 	$(shell $(SDL_CONFIG) --cflags) \
-	-Wall -Og -g
-
-CPPFLAGS := \
+	-Wall -Og -g \
 	-faligned-new \
 	-std=c++17
+
+# Extra checks for the testbench sources only, not the Verilator runtime
+DEVFLAGS :=
+ifeq ($(DEVELOPER),1)
+DEVFLAGS += -Wextra -Wpedantic -Werror
+endif
 
 LDFLAGS :=
 
 INCLUDES += \
 	-I. \
-	-I$(RTLOBJDIR) \
 	-I$(RTLDIR) \
-	-I$(VINCD) \
-	-I$(VINCD)/vltstd
+	-isystem $(RTLOBJDIR) \
+	-isystem $(VINCD) \
+	-isystem $(VINCD)/vltstd
 
-CSRCS +=
-
-CPPSRCS += \
+CXXSRCS += \
 	./main.cpp \
 	./dispsim.cpp \
 	./intapi.cpp \
@@ -48,33 +49,26 @@ CPPSRCS += \
 	verilated_vcd_c.cpp \
 	verilated_threads.cpp
 
-OBJS :=	$(CSRCS:%.c=$(OBJODIR)/%.o) \
-		$(CPPSRCS:%.cpp=$(OBJODIR)/%.o)
-
+OBJS := $(CXXSRCS:%.cpp=$(OBJODIR)/%.o)
 OBJS += $(RTLOBJ)
 
 $(RTLOBJ):
 	@echo Building RTL
 	make -f rtl.mk
 
-$(OBJODIR)/%.o: %.c $(RTLOBJ)
-	@echo [CC] $<
-	@mkdir -p $(dir $@)
-	@$(CC) $(COMMONFLAGS) $(CCFLAGS) $(INCLUDES) -c -o $@ $<
-
 $(OBJODIR)/%.o: %.cpp $(RTLOBJ)
 	@echo [CXX] $<
 	@mkdir -p $(dir $@)
-	@$(CXX) $(COMMONFLAGS) $(CPPFLAGS) $(INCLUDES) -c -o $@ $<
+	@$(CXX) $(CXXFLAGS) $(DEVFLAGS) $(INCLUDES) -c -o $@ $<
 
 $(OBJODIR)/%.o: $(VINCD)/%.cpp
 	@echo [CXX] $<
 	@mkdir -p $(dir $@)
-	@$(CXX) $(COMMONFLAGS) $(CPPFLAGS) $(INCLUDES) -c -o $@ $<
+	@$(CXX) $(CXXFLAGS) $(INCLUDES) -c -o $@ $<
 
 PHONY += all
 all: $(OBJS)
-	@$(LD) $(LDFLAGS) $(OBJS) $(LIBS) -o $(TARGET)
+	@$(CXX) $(LDFLAGS) $(OBJS) $(LIBS) -o $(TARGET)
 	@echo 'all finish'
 
 PHONY += clean
@@ -84,10 +78,6 @@ clean:
 	rm -f $(TARGET)
 	@echo 'clean finish'
 
-# Declare the contents of the .PHONY variable as phony.  We keep that
-# information in a variable so we can use it in if_changed and friends.
 .PHONY: $(PHONY)
 
-# Set default target
-.DEFAULT_GOAL:= all
-
+.DEFAULT_GOAL := all

@@ -31,9 +31,13 @@ make
 ./sim
 ```
 
-> [!NOTE]
-> Build outputs will be moved to `sim/build/`.
+`make DEVELOPER=1` builds with `-Wextra -Wpedantic -Werror`.
 
-`./sim` expects a `texture.jpg` (at least 20 x 20 pixels) in `sim/`, otherwise it segfaults.
+> [!NOTE]
+> The developer build does not compile yet. Build outputs will be moved to
+> `sim/build/`.
+
+`./sim` expects a `texture.jpg` (at least 20 x 20 pixels) in `sim/`,
+otherwise it segfaults.
 
 Issues found so far are tracked in [KnownIssues.md](KnownIssues.md).
