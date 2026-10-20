@@ -28,6 +28,8 @@
 - [ ] Options (input pattern, OSD, trace, cycle limit) are set with `#define`
       and `#if 1` / `#elif 0` chains, so changing them needs a rebuild and the
       disabled code is never compiled.
+- [x] `tick()` passed uninitialized local variables to the core when a model
+      did not set them, so two identical runs gave different traces.
 
 ## Build
 

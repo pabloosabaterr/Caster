@@ -114,16 +114,25 @@ void testmain(void) {
     }
 }
 
+struct CoreInputs {
+    // Video input
+    uint8_t  vin_vsync = 0;
+    uint32_t vin_pixel = 0;
+    uint8_t  vin_valid = 0;
+
+    // VRAM read
+    uint64_t bi_pixel = 0;
+    uint8_t  bi_valid = 0;
+
+    // SPI
+    uint8_t  spi_cs   = 1;
+    uint8_t  spi_sck  = 1;
+    uint8_t  spi_mosi = 1;
+};
+
 void tick(void) {
     // Create local copy of input signals
-    uint8_t vin_vsync;
-    uint32_t vin_pixel;
-    uint8_t vin_valid;
-    uint64_t bi_pixel;
-    uint8_t bi_valid;
-    uint8_t spi_cs;
-    uint8_t spi_sck;
-    uint8_t spi_mosi;
+    CoreInputs core_input{};
 
     // Call simulated modules
     dispsim_apply(
@@ -138,23 +147,23 @@ void tick(void) {
         core->dbg_wvfm_tgt
     );
     srcsim_apply(
-        vin_vsync,
-        vin_pixel,
-        vin_valid,
+        core_input.vin_vsync,
+        core_input.vin_pixel,
+        core_input.vin_valid,
         core->vin_ready
     );
     vramsim_apply(
         core->b_trigger,
-        bi_pixel,
-        bi_valid,
+        core_input.bi_pixel,
+        core_input.bi_valid,
         core->bi_ready,
         core->bo_pixel,
         core->bo_valid
     );
     spisim_apply(
-        spi_cs,
-        spi_sck,
-        spi_mosi,
+        core_input.spi_cs,
+        core_input.spi_sck,
+        core_input.spi_mosi,
         core->spi_miso
     );
 
@@ -163,14 +172,14 @@ void tick(void) {
     core->eval();
 
     // Apply changed input signals after clock edge
-    core->vin_vsync = vin_vsync;
-    core->vin_pixel = vin_pixel;
-    core->vin_valid = vin_valid;
-    core->bi_pixel = bi_pixel;
-    core->bi_valid = bi_valid;
-    core->spi_cs = spi_cs;
-    core->spi_sck = spi_sck;
-    core->spi_mosi = spi_mosi;
+    core->vin_vsync = core_input.vin_vsync;
+    core->vin_pixel = core_input.vin_pixel;
+    core->vin_valid = core_input.vin_valid;
+    core->bi_pixel = core_input.bi_pixel;
+    core->bi_valid = core_input.bi_valid;
+    core->spi_cs = core_input.spi_cs;
+    core->spi_sck = core_input.spi_sck;
+    core->spi_mosi = core_input.spi_mosi;
 
     // Let combinational changes propagate
     core->eval();
