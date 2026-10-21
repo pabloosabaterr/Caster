@@ -48,6 +48,9 @@ CXXSRCS += \
 	$(SRCDIR)/video-source.cpp \
 	$(SRCDIR)/stb.cpp \
 	$(SRCDIR)/vram.cpp \
+	$(SRCDIR)/sim.cpp \
+	$(SRCDIR)/display.cpp \
+	$(SRCDIR)/firmware.cpp \
 	verilated.cpp \
 	verilated_vcd_c.cpp \
 	verilated_threads.cpp

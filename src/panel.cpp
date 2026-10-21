@@ -1,29 +1,34 @@
-//
-// Caster simulator
-// Copyright 2021 Wenting Zhang
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-//
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-// SOFTWARE.
-//
+/*
+ * Caster simulator
+ * Copyright 2021 Wenting Zhang
+ * Copyright 2026 Pablo Sabater
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
+
 #include "panel.h"
+#include "display.h"
+
 #include <SDL.h>
 
 static uint8_t localbuf[DISP_WIDTH * DISP_HEIGHT];
@@ -36,8 +41,6 @@ static int last_hs;
 // #define USE_DBG_OUTPUT
 
 #define ACCEL 20
-
-void render_copy(); // Function in main.cpp
 
 void dispsim_set_pixel(uint32_t *pixels, int x, int y, uint8_t input) {
     if (x >= DISP_WIDTH)
@@ -94,7 +97,7 @@ void dispsim_reset() {
     memset(localbuf, 0xff, sizeof(localbuf));
 }
 
-void dispsim_render() {
+void dispsim_render(Display &display) {
     static float time_delta = 0.0f;
     static int last_ticks = SDL_GetTicks();
     const float TARGET_FPS = 60.0f;
@@ -105,14 +108,14 @@ void dispsim_render() {
     time_delta += 1000.0f / TARGET_FPS; // Time allocated for this iteration
     last_ticks = cur_ticks;
 
-    render_copy();
+    display.present();
 
     int time_to_wait = time_delta - (SDL_GetTicks() - last_ticks);
     if (time_to_wait > 0)
         SDL_Delay(time_to_wait);
 }
 
-void dispsim_apply(uint32_t *pixels,
+void dispsim_apply(Display &display,
                    [[maybe_unused]] const uint8_t gdoe,
                    [[maybe_unused]] const uint8_t gdclk,
                    const uint8_t gdsp,
@@ -121,6 +124,7 @@ void dispsim_apply(uint32_t *pixels,
                    const uint8_t sd,
                    const uint8_t sdce0,
                    [[maybe_unused]] const uint16_t dbg) {
+    uint32_t *pixels = display.pixels();
     // SDLE = Hsync
     // GDSP = ~ Vsync
     // SDCE0 = ~ DE
@@ -134,7 +138,7 @@ void dispsim_apply(uint32_t *pixels,
         if (vs) {
             y_counter = 0;
             line_valid = false;
-            dispsim_render();
+            dispsim_render(display);
         } else {
             if (line_valid)
                 y_counter++;

@@ -1,0 +1,61 @@
+/*
+ * Caster simulator
+ * Copyright 2021 Wenting Zhang
+ * Copyright 2026 Pablo Sabater
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+#ifndef DISPLAY_H
+#define DISPLAY_H
+
+#include <cstdint>
+
+struct SDL_Window;
+struct SDL_Renderer;
+struct SDL_Texture;
+struct SDL_Surface;
+
+/* The SDL window where the simulated panel is shown. */
+class Display {
+  public:
+    Display(int width, int height, int scale);
+    ~Display();
+
+    /* Framebuffer the panel model draws into, one ARGB pixel per element. */
+    uint32_t *pixels();
+
+    /* Copy the framebuffer to the window. */
+    void present();
+
+    void set_title(const char *title);
+
+    /* Handle one pending window event, true if the window was closed. */
+    bool poll_quit();
+
+  private:
+    int width;
+    int height;
+    SDL_Window *window = nullptr;
+    SDL_Renderer *renderer = nullptr;
+    SDL_Texture *texture = nullptr;
+    SDL_Surface *screen = nullptr;
+};
+
+#endif
