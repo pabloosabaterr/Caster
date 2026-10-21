@@ -14,22 +14,6 @@ double sc_time_stamp() {
     return 0;
 }
 
-struct CoreInputs {
-    // Video input
-    uint8_t vin_vsync = 0;
-    uint32_t vin_pixel = 0;
-    uint8_t vin_valid = 0;
-
-    // VRAM read
-    uint64_t bi_pixel = 0;
-    uint8_t bi_valid = 0;
-
-    // SPI
-    uint8_t spi_cs = 1;
-    uint8_t spi_sck = 1;
-    uint8_t spi_mosi = 1;
-};
-
 Sim::Sim() {
     core = new Vcaster;
     Verilated::traceEverOn(true);
@@ -90,9 +74,13 @@ static VramBus read_vram_bus(const Vcaster &core) {
     return bus;
 }
 
-void Sim::tick(Display &display) {
-    CoreInputs in{};
+static SpiBus read_spi_bus(const Vcaster &core) {
+    SpiBus bus;
+    bus.miso = core.spi_miso;
+    return bus;
+}
 
+void Sim::tick(Display &display) {
     /* Call simulated modules */
     dispsim_apply(display, read_panel_bus(*core));
 
@@ -102,7 +90,8 @@ void Sim::tick(Display &display) {
     VramBus vram = read_vram_bus(*core);
     vramsim_apply(vram);
 
-    spisim_apply(in.spi_cs, in.spi_sck, in.spi_mosi, core->spi_miso);
+    SpiBus spi = read_spi_bus(*core);
+    spisim_apply(spi);
 
     /* Posedge */
     core->clk = 1;
@@ -114,9 +103,9 @@ void Sim::tick(Display &display) {
     core->vin_valid = video.valid;
     core->bi_pixel = vram.bi_pixel;
     core->bi_valid = vram.bi_valid;
-    core->spi_cs = in.spi_cs;
-    core->spi_sck = in.spi_sck;
-    core->spi_mosi = in.spi_mosi;
+    core->spi_cs = spi.cs;
+    core->spi_sck = spi.sck;
+    core->spi_mosi = spi.mosi;
 
     /* Let combinational changes propagate */
     core->eval();
