@@ -31,10 +31,7 @@ void spisim_reset() {
     byte_counter = 0;
 }
 
-void spisim_apply(uint8_t &spi_cs,
-                  uint8_t &spi_sck,
-                  uint8_t &spi_mosi,
-                  const uint8_t spi_miso) {
+void spisim_apply(SpiBus &bus) {
     spi_divider--;
     if (spi_divider == 0) {
         spi_divider = SPI_DIV;
@@ -72,12 +69,12 @@ void spisim_apply(uint8_t &spi_cs,
             // posedge
             sck = 1;
             spi_rx <<= 1;
-            spi_rx |= spi_miso & 0x1;
+            spi_rx |= bus.miso & 0x1;
         }
     }
-    spi_cs = cs;
-    spi_sck = sck;
-    spi_mosi = mosi;
+    bus.cs = cs;
+    bus.sck = sck;
+    bus.mosi = mosi;
 }
 
 void spi_write_reg8(uint8_t addr, uint8_t val) {
