@@ -1,4 +1,7 @@
-#pragma once
+#ifndef VRAM_H
+#define VRAM_H
+
+#include <cstdint>
 
 void vramsim_reset();
 void vramsim_apply(uint8_t b_trigger,
@@ -7,3 +10,4 @@ void vramsim_apply(uint8_t b_trigger,
                    uint8_t bi_ready,
                    uint64_t bo_pixel,
                    uint8_t bo_valid);
+#endif
