@@ -37,15 +37,18 @@ static int frame_counter;
 void print_buffer(uint8_t *buf, size_t bytes) {
     for (size_t i = 0; i < bytes / 16; i++) {
         for (int j = 0; j < 16; j++) {
-            printf("%02x ", buf[i*16+j]);
+            printf("%02x ", buf[i * 16 + j]);
         }
         printf("\n");
     }
 }
 
 [[maybe_unused]]
-static uint8_t rgb2y(uint32_t r, uint32_t g, uint32_t b,
-                     [[maybe_unused]] int x, [[maybe_unused]] int y) {
+static uint8_t rgb2y(uint32_t r,
+                     uint32_t g,
+                     uint32_t b,
+                     [[maybe_unused]] int x,
+                     [[maybe_unused]] int y) {
 #ifdef K3
     int c = (x + (DISP_HEIGHT - y)) % 3;
     if (c == 0)
@@ -68,8 +71,10 @@ static uint8_t rgb2y(uint32_t r, uint32_t g, uint32_t b,
 static uint8_t *load_image(const char *fn, int *x, int *y, int *n) {
     uint8_t *data = stbi_load(fn, x, y, n, 0);
     if (!data) {
-        fprintf(stderr, "error: cannot load image '%s': %s\n",
-                fn, stbi_failure_reason());
+        fprintf(stderr,
+                "error: cannot load image '%s': %s\n",
+                fn,
+                stbi_failure_reason());
         exit(EXIT_FAILURE);
     }
 
@@ -87,67 +92,79 @@ void srcsim_next_frame() {
     bool xleft = (x == 0);
     if (dir == 0) {
         // Right down
-        if (ydown) dir = 1; // right up
-        if (xright) dir = 2; // left down
-        if (ydown && xright) dir = 3;
-    }
-    else if (dir == 1) {
+        if (ydown)
+            dir = 1; // right up
+        if (xright)
+            dir = 2; // left down
+        if (ydown && xright)
+            dir = 3;
+    } else if (dir == 1) {
         // Right up
-        if (yup) dir = 0; // right down
-        if (xright) dir = 3; // left up
-        if (yup && xright) dir = 2;
-    }
-    else if (dir == 2) {
+        if (yup)
+            dir = 0; // right down
+        if (xright)
+            dir = 3; // left up
+        if (yup && xright)
+            dir = 2;
+    } else if (dir == 2) {
         // Left down
-        if (ydown) dir = 3; // left up
-        if (xleft) dir = 0; // right down
-        if (ydown && xleft) dir = 1;
-    }
-    else if (dir == 3) {
+        if (ydown)
+            dir = 3; // left up
+        if (xleft)
+            dir = 0; // right down
+        if (ydown && xleft)
+            dir = 1;
+    } else if (dir == 3) {
         // Left up
-        if (yup) dir = 2; // left down
-        if (xleft) dir = 1; // right up
-        if (yup && xleft) dir = 0;
+        if (yup)
+            dir = 2; // left down
+        if (xleft)
+            dir = 1; // right up
+        if (yup && xleft)
+            dir = 0;
     }
 
     if (dir == 0) {
         // Right down
-        x++; y++;
-    }
-    else if (dir == 1) {
+        x++;
+        y++;
+    } else if (dir == 1) {
         // Right up
-        x++; y--;
-    }
-    else if (dir == 2) {
+        x++;
+        y--;
+    } else if (dir == 2) {
         // Left down
-        x--; y++;
-    }
-    else if (dir == 3) {
+        x--;
+        y++;
+    } else if (dir == 3) {
         // Left up
-        x--; y--;
+        x--;
+        y--;
     }
 
     static bool image_loaded = false;
-    static uint8_t image[20*20];
+    static uint8_t image[20 * 20];
     if (!image_loaded) {
         int w, h, n;
         uint8_t *data = load_image("texture.jpg", &w, &h, &n);
         printf("Input image size %d x %d (%d channels)\n", w, h, n);
         if (w != 20 || h != 20) {
-            fprintf(stderr, "error: texture.jpg must be 20 x 20, got %d x %d\n",
-                    w, h);
+            fprintf(stderr,
+                    "error: texture.jpg must be 20 x 20, got %d x %d\n",
+                    w,
+                    h);
             exit(EXIT_FAILURE);
         }
-        //uint8_t *scaled = (uint8_t *)calloc(1, 20 * 20 * n);
-        //stbir_resize_uint8(data, x, y, 0, scaled, 20, 20, 0, n);
-        //free(data);
-        //for (int i = 0; i < 20*20; i++) {
-        //    image[i] = scaled[i*n];
-        //}
-        //free(scaled);
+        // uint8_t *scaled = (uint8_t *)calloc(1, 20 * 20 * n);
+        // stbir_resize_uint8(data, x, y, 0, scaled, 20, 20, 0, n);
+        // free(data);
+        // for (int i = 0; i < 20*20; i++) {
+        //     image[i] = scaled[i*n];
+        // }
+        // free(scaled);
 
-        for (int i = 0; i < 20*20; i++) {
-            image[i] = data[i*n];
+        for (int i = 0; i < 20 * 20; i++) {
+            image[i] = data[i * n];
         }
         image_loaded = true;
         printf("Image loaded\n");
@@ -172,9 +189,15 @@ void srcsim_next_frame() {
     }
 #elif 0 // Just full screen fixed color
     memset(pixels, 0x00, DISP_WIDTH * DISP_HEIGHT / 4);
-    memset(pixels + DISP_WIDTH * DISP_HEIGHT / 4, 0x55, DISP_WIDTH * DISP_HEIGHT / 4);
-    memset(pixels + DISP_WIDTH * DISP_HEIGHT / 2, 0xaa, DISP_WIDTH * DISP_HEIGHT / 4);
-    memset(pixels + DISP_WIDTH * DISP_HEIGHT / 4 * 3, 0xff, DISP_WIDTH * DISP_HEIGHT / 4);
+    memset(pixels + DISP_WIDTH * DISP_HEIGHT / 4,
+           0x55,
+           DISP_WIDTH * DISP_HEIGHT / 4);
+    memset(pixels + DISP_WIDTH * DISP_HEIGHT / 2,
+           0xaa,
+           DISP_WIDTH * DISP_HEIGHT / 4);
+    memset(pixels + DISP_WIDTH * DISP_HEIGHT / 4 * 3,
+           0xff,
+           DISP_WIDTH * DISP_HEIGHT / 4);
 #elif 0 // Full screen fixed color, reverse 200 frames later
     uint8_t colors[4];
     if (frame_counter < 100) {
@@ -182,17 +205,22 @@ void srcsim_next_frame() {
         colors[1] = 0x55;
         colors[2] = 0xaa;
         colors[3] = 0xff;
-    }
-    else {
+    } else {
         colors[0] = 0xff;
         colors[1] = 0xaa;
         colors[2] = 0x55;
         colors[3] = 0x00;
     }
     memset(pixels, colors[0], DISP_WIDTH * DISP_HEIGHT / 4);
-    memset(pixels + DISP_WIDTH * DISP_HEIGHT / 4, colors[1], DISP_WIDTH * DISP_HEIGHT / 4);
-    memset(pixels + DISP_WIDTH * DISP_HEIGHT / 2, colors[2], DISP_WIDTH * DISP_HEIGHT / 4);
-    memset(pixels + DISP_WIDTH * DISP_HEIGHT / 4 * 3, colors[3], DISP_WIDTH * DISP_HEIGHT / 4);
+    memset(pixels + DISP_WIDTH * DISP_HEIGHT / 4,
+           colors[1],
+           DISP_WIDTH * DISP_HEIGHT / 4);
+    memset(pixels + DISP_WIDTH * DISP_HEIGHT / 2,
+           colors[2],
+           DISP_WIDTH * DISP_HEIGHT / 4);
+    memset(pixels + DISP_WIDTH * DISP_HEIGHT / 4 * 3,
+           colors[3],
+           DISP_WIDTH * DISP_HEIGHT / 4);
     frame_counter++;
     if (frame_counter == 200)
         frame_counter = 0;
@@ -200,8 +228,7 @@ void srcsim_next_frame() {
     if (frame_counter) {
         memset(pixels, 0x00, DISP_WIDTH * DISP_HEIGHT);
         frame_counter = 0;
-    }
-    else {
+    } else {
         memset(pixels, 0xff, DISP_WIDTH * DISP_HEIGHT);
         frame_counter = 1;
     }
@@ -235,7 +262,8 @@ void srcsim_next_frame() {
         outoffset = ((DISP_HEIGHT - outh) / 2) * n * DISP_WIDTH;
         outstride = 0;
     }
-    stbir_resize_uint8(data, x, y, 0, scaled + outoffset, outw, outh, outstride, n);
+    stbir_resize_uint8(
+        data, x, y, 0, scaled + outoffset, outw, outh, outstride, n);
     free(data);
     uint8_t *rdptr = scaled;
     uint8_t *wrptr = pixels;
@@ -250,8 +278,7 @@ void srcsim_next_frame() {
                 *wrptr++ = yy;
             }
         }
-    }
-    else if (n == 3) {
+    } else if (n == 3) {
         for (int y = 0; y < DISP_HEIGHT; y++) {
             for (int x = 0; x < DISP_WIDTH; x++) {
                 uint32_t r = *rdptr++;
@@ -261,8 +288,7 @@ void srcsim_next_frame() {
                 *wrptr++ = yy;
             }
         }
-    }
-    else if (n == 1) {
+    } else if (n == 1) {
         memcpy(wrptr, rdptr, DISP_WIDTH * DISP_HEIGHT);
     }
     free(scaled);
@@ -275,8 +301,10 @@ void srcsim_reset() {
     srcsim_next_frame();
 }
 
-void srcsim_apply(uint8_t &vsync, uint32_t &pixel, uint8_t &valid,
-        const uint8_t ready) {
+void srcsim_apply(uint8_t &vsync,
+                  uint32_t &pixel,
+                  uint8_t &valid,
+                  const uint8_t ready) {
     vsync = (y_counter == 0) ? 1 : 0;
     valid = 1;
     if (ready) {

@@ -37,7 +37,7 @@
 #include "int-api.h"
 
 #define SIM_STEP 100000
-//#define MAX_CYCLES 500000
+// #define MAX_CYCLES 500000
 #define TRACE
 
 constexpr int DISP_FACTOR = 2;
@@ -59,7 +59,9 @@ static constexpr int OSD_HEIGHT = 200;
 static constexpr int OSD_BUF_SIZE = OSD_WIDTH * OSD_HEIGHT / 8;
 
 // Legacy function required by some platforms/ versions of Verilator
-double sc_time_stamp() { return 0; }
+double sc_time_stamp() {
+    return 0;
+}
 
 void testmain(void) {
     static int step = 0;
@@ -110,24 +112,24 @@ void testmain(void) {
             step = 3;
         }*/
         break;
-    // Do more test here
+        // Do more test here
     }
 }
 
 struct CoreInputs {
     // Video input
-    uint8_t  vin_vsync = 0;
+    uint8_t vin_vsync = 0;
     uint32_t vin_pixel = 0;
-    uint8_t  vin_valid = 0;
+    uint8_t vin_valid = 0;
 
     // VRAM read
     uint64_t bi_pixel = 0;
-    uint8_t  bi_valid = 0;
+    uint8_t bi_valid = 0;
 
     // SPI
-    uint8_t  spi_cs   = 1;
-    uint8_t  spi_sck  = 1;
-    uint8_t  spi_mosi = 1;
+    uint8_t spi_cs = 1;
+    uint8_t spi_sck = 1;
+    uint8_t spi_mosi = 1;
 };
 
 void tick(void) {
@@ -135,37 +137,29 @@ void tick(void) {
     CoreInputs core_input{};
 
     // Call simulated modules
-    dispsim_apply(
-        (uint32_t *)screen->pixels,
-        core->epd_gdoe,
-        core->epd_gdclk,
-        core->epd_gdsp,
-        core->epd_sdle,
-        core->epd_sdoe,
-        core->epd_sd,
-        core->epd_sdce0,
-        core->dbg_wvfm_tgt
-    );
-    srcsim_apply(
-        core_input.vin_vsync,
-        core_input.vin_pixel,
-        core_input.vin_valid,
-        core->vin_ready
-    );
-    vramsim_apply(
-        core->b_trigger,
-        core_input.bi_pixel,
-        core_input.bi_valid,
-        core->bi_ready,
-        core->bo_pixel,
-        core->bo_valid
-    );
-    spisim_apply(
-        core_input.spi_cs,
-        core_input.spi_sck,
-        core_input.spi_mosi,
-        core->spi_miso
-    );
+    dispsim_apply((uint32_t *)screen->pixels,
+                  core->epd_gdoe,
+                  core->epd_gdclk,
+                  core->epd_gdsp,
+                  core->epd_sdle,
+                  core->epd_sdoe,
+                  core->epd_sd,
+                  core->epd_sdce0,
+                  core->dbg_wvfm_tgt);
+    srcsim_apply(core_input.vin_vsync,
+                 core_input.vin_pixel,
+                 core_input.vin_valid,
+                 core->vin_ready);
+    vramsim_apply(core->b_trigger,
+                  core_input.bi_pixel,
+                  core_input.bi_valid,
+                  core->bi_ready,
+                  core->bo_pixel,
+                  core->bo_valid);
+    spisim_apply(core_input.spi_cs,
+                 core_input.spi_sck,
+                 core_input.spi_mosi,
+                 core->spi_miso);
 
     // Posedge
     core->clk = 1;
@@ -212,26 +206,28 @@ void reset(void) {
 
 void render_copy(void) {
     void *texture_pixel;
-	int texture_pitch;
+    int texture_pitch;
 
-	SDL_LockTexture(texture, NULL, &texture_pixel, &texture_pitch);
-	memset(texture_pixel, 0, texture_rect.y * texture_pitch);
-	uint8_t *pixels = (uint8_t *)texture_pixel + texture_rect.y * texture_pitch;
-	uint8_t *src = (uint8_t *)screen->pixels;
-	int left_pitch = texture_rect.x * 4;
-	int right_pitch = texture_pitch - ((texture_rect.x + texture_rect.w) * 4);
-	for (int y = 0; y < texture_rect.h; y++, src += screen->pitch)
-	{
-		memset(pixels, 0, left_pitch); pixels += left_pitch;
-		memcpy(pixels, src, DISP_WIDTH * 4); pixels += DISP_WIDTH * 4;
-		memset(pixels, 0, right_pitch); pixels += right_pitch;
-	}
-	memset(pixels, 0, texture_rect.y * texture_pitch);
-	SDL_UnlockTexture(texture);
+    SDL_LockTexture(texture, NULL, &texture_pixel, &texture_pitch);
+    memset(texture_pixel, 0, texture_rect.y * texture_pitch);
+    uint8_t *pixels = (uint8_t *)texture_pixel + texture_rect.y * texture_pitch;
+    uint8_t *src = (uint8_t *)screen->pixels;
+    int left_pitch = texture_rect.x * 4;
+    int right_pitch = texture_pitch - ((texture_rect.x + texture_rect.w) * 4);
+    for (int y = 0; y < texture_rect.h; y++, src += screen->pitch) {
+        memset(pixels, 0, left_pitch);
+        pixels += left_pitch;
+        memcpy(pixels, src, DISP_WIDTH * 4);
+        pixels += DISP_WIDTH * 4;
+        memset(pixels, 0, right_pitch);
+        pixels += right_pitch;
+    }
+    memset(pixels, 0, texture_rect.y * texture_pitch);
+    SDL_UnlockTexture(texture);
 
-	SDL_RenderClear(renderer);
-	SDL_RenderCopy(renderer, texture, NULL, NULL);
-	SDL_RenderPresent(renderer);
+    SDL_RenderClear(renderer);
+    SDL_RenderCopy(renderer, texture, NULL, NULL);
+    SDL_RenderPresent(renderer);
 }
 
 int main(int argc, char *argv[]) {
@@ -249,20 +245,32 @@ int main(int argc, char *argv[]) {
 
     // Initialize window
     window = SDL_CreateWindow("Caster",
-            SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-            DISP_WIDTH * DISP_FACTOR, DISP_HEIGHT * DISP_FACTOR, SDL_SWSURFACE);
+                              SDL_WINDOWPOS_UNDEFINED,
+                              SDL_WINDOWPOS_UNDEFINED,
+                              DISP_WIDTH * DISP_FACTOR,
+                              DISP_HEIGHT * DISP_FACTOR,
+                              SDL_SWSURFACE);
     assert(window);
-    renderer = SDL_CreateRenderer(window, -1,
-            SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    renderer = SDL_CreateRenderer(
+        window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
     assert(renderer);
-    screen = SDL_CreateRGBSurface(SDL_SWSURFACE, DISP_WIDTH, DISP_HEIGHT, 32,
-            0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000);
+    screen = SDL_CreateRGBSurface(SDL_SWSURFACE,
+                                  DISP_WIDTH,
+                                  DISP_HEIGHT,
+                                  32,
+                                  0x00FF0000,
+                                  0x0000FF00,
+                                  0x000000FF,
+                                  0xFF000000);
     assert(screen);
     texture_rect.x = texture_rect.y = 0;
     texture_rect.w = DISP_WIDTH;
     texture_rect.h = DISP_HEIGHT;
-    texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888,
-            SDL_TEXTUREACCESS_STREAMING, DISP_WIDTH, DISP_HEIGHT);
+    texture = SDL_CreateTexture(renderer,
+                                SDL_PIXELFORMAT_ARGB8888,
+                                SDL_TEXTUREACCESS_STREAMING,
+                                DISP_WIDTH,
+                                DISP_HEIGHT);
     assert(texture);
     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0");
 
@@ -282,15 +290,13 @@ int main(int argc, char *argv[]) {
             }
 
             SDL_Event event;
-            if (SDL_PollEvent(&event))
-            {
-                if (event.type == SDL_QUIT)
-                {
+            if (SDL_PollEvent(&event)) {
+                if (event.type == SDL_QUIT) {
                     running = false;
                 }
             }
         }
-        
+
         uint32_t ms_delta = SDL_GetTicks() - ms_tick;
         char title[50];
         snprintf(title, 50, "Caster Sim (%d kHz)", SIM_STEP / ms_delta);

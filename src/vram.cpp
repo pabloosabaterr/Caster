@@ -32,7 +32,7 @@ static uint64_t vram[VRAM_SIZE];
 static size_t rdptr, wrptr;
 static uint8_t last_trigger;
 
-//#define TRIGGER 2070
+// #define TRIGGER 2070
 
 void vramsim_reset() {
     memset(vram, 0, VRAM_SIZE * sizeof(uint64_t));
@@ -49,8 +49,12 @@ static void print_pixel(uint16_t pixel) {
     printf("Mode: %d, Fcnt: %d, Pixl: %d\n", mode, fcnt, pixl);
 }
 
-void vramsim_apply(uint8_t b_trigger, uint64_t &bi_pixel, uint8_t &bi_valid,
-        uint8_t bi_ready, uint64_t bo_pixel, uint8_t bo_valid) {
+void vramsim_apply(uint8_t b_trigger,
+                   uint64_t &bi_pixel,
+                   uint8_t &bi_valid,
+                   uint8_t bi_ready,
+                   uint64_t bo_pixel,
+                   uint8_t bo_valid) {
     if (!last_trigger && b_trigger) {
         rdptr = 0;
         wrptr = 0;

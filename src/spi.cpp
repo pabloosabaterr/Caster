@@ -28,7 +28,7 @@
 #include "spi.h"
 
 // Uncomment to print every byte received over SPI.
-//#define SPI_VERBOSE
+// #define SPI_VERBOSE
 
 static const int SPI_DIV = 10;
 static int spi_divider = 0;
@@ -53,8 +53,10 @@ void spisim_reset() {
     byte_counter = 0;
 }
 
-void spisim_apply(uint8_t &spi_cs, uint8_t &spi_sck, uint8_t &spi_mosi,
-        const uint8_t spi_miso) {
+void spisim_apply(uint8_t &spi_cs,
+                  uint8_t &spi_sck,
+                  uint8_t &spi_mosi,
+                  const uint8_t spi_miso) {
     spi_divider--;
     if (spi_divider == 0) {
         spi_divider = SPI_DIV;
@@ -71,14 +73,12 @@ void spisim_apply(uint8_t &spi_cs, uint8_t &spi_sck, uint8_t &spi_mosi,
                     // Empty, stop
                     cs = 1;
                     spi_tx = 0xff;
-                }
-                else if (byte_buf.front() == 0x100) {
+                } else if (byte_buf.front() == 0x100) {
                     // Requested packet break, stop
                     byte_buf.pop();
                     cs = 1;
                     spi_tx = 0xff;
-                }
-                else {
+                } else {
                     // Has data, start or continue
                     cs = 0;
                     spi_tx = byte_buf.front();
@@ -87,10 +87,10 @@ void spisim_apply(uint8_t &spi_cs, uint8_t &spi_sck, uint8_t &spi_mosi,
             }
             mosi = (spi_tx >> 7) & 0x01;
             spi_tx <<= 1;
-            bit_counter ++;
-            if (bit_counter == 8) bit_counter = 0;
-        }
-        else {
+            bit_counter++;
+            if (bit_counter == 8)
+                bit_counter = 0;
+        } else {
             // posedge
             sck = 1;
             spi_rx <<= 1;

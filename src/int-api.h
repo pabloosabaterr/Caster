@@ -23,91 +23,91 @@
 #pragma once
 
 // Register map
-#define CSR_LUT_FRAME       0
-#define CSR_LUT_ADDR_HI     1
-#define CSR_LUT_ADDR_LO     2
-#define CSR_LUT_WR          3
-#define CSR_OP_LEFT_HI      4
-#define CSR_OP_LEFT_LO      5
-#define CSR_OP_RIGHT_HI     6
-#define CSR_OP_RIGHT_LO     7
-#define CSR_OP_TOP_HI       8
-#define CSR_OP_TOP_LO       9
-#define CSR_OP_BOTTOM_HI    10
-#define CSR_OP_BOTTOM_LO    11
-#define CSR_OP_PARAM        12
-#define CSR_OP_LENGTH       13
-#define CSR_OP_CMD          14
-#define CSR_ENABLE          15
-#define CSR_CFG_V_FP        16
-#define CSR_CFG_V_SYNC      17
-#define CSR_CFG_V_BP        18
-#define CSR_CFG_V_ACT_HI    19
-#define CSR_CFG_V_ACT_LO    20
-#define CSR_CFG_H_FP        21
-#define CSR_CFG_H_SYNC      22
-#define CSR_CFG_H_BP        23
-#define CSR_CFG_H_ACT_HI    24
-#define CSR_CFG_H_ACT_LO    25
-#define CSR_CFG_FBYTES_B2   27
-#define CSR_CFG_FBYTES_B1   28
-#define CSR_CFG_FBYTES_B0   29
-#define CSR_CFG_MINDRV      30
-#define CSR_OSD_EN          31
-#define CSR_OSD_LEFT_HI     32
-#define CSR_OSD_LEFT_LO     33
-#define CSR_OSD_RIGHT_HI    34
-#define CSR_OSD_RIGHT_LO    35
-#define CSR_OSD_TOP_HI      36
-#define CSR_OSD_TOP_LO      37
-#define CSR_OSD_BOTTOM_HI   38
-#define CSR_OSD_BOTTOM_LO   39
-#define CSR_OSD_ADDR_HI     40
-#define CSR_OSD_ADDR_LO     41
-#define CSR_OSD_WR          42
-#define CSR_CFG_MIRROR      43
-#define CSR_CFG_B2WFRAME    44
-#define CSR_CFG_W2BFRAME    45
+#define CSR_LUT_FRAME          0
+#define CSR_LUT_ADDR_HI        1
+#define CSR_LUT_ADDR_LO        2
+#define CSR_LUT_WR             3
+#define CSR_OP_LEFT_HI         4
+#define CSR_OP_LEFT_LO         5
+#define CSR_OP_RIGHT_HI        6
+#define CSR_OP_RIGHT_LO        7
+#define CSR_OP_TOP_HI          8
+#define CSR_OP_TOP_LO          9
+#define CSR_OP_BOTTOM_HI       10
+#define CSR_OP_BOTTOM_LO       11
+#define CSR_OP_PARAM           12
+#define CSR_OP_LENGTH          13
+#define CSR_OP_CMD             14
+#define CSR_ENABLE             15
+#define CSR_CFG_V_FP           16
+#define CSR_CFG_V_SYNC         17
+#define CSR_CFG_V_BP           18
+#define CSR_CFG_V_ACT_HI       19
+#define CSR_CFG_V_ACT_LO       20
+#define CSR_CFG_H_FP           21
+#define CSR_CFG_H_SYNC         22
+#define CSR_CFG_H_BP           23
+#define CSR_CFG_H_ACT_HI       24
+#define CSR_CFG_H_ACT_LO       25
+#define CSR_CFG_FBYTES_B2      27
+#define CSR_CFG_FBYTES_B1      28
+#define CSR_CFG_FBYTES_B0      29
+#define CSR_CFG_MINDRV         30
+#define CSR_OSD_EN             31
+#define CSR_OSD_LEFT_HI        32
+#define CSR_OSD_LEFT_LO        33
+#define CSR_OSD_RIGHT_HI       34
+#define CSR_OSD_RIGHT_LO       35
+#define CSR_OSD_TOP_HI         36
+#define CSR_OSD_TOP_LO         37
+#define CSR_OSD_BOTTOM_HI      38
+#define CSR_OSD_BOTTOM_LO      39
+#define CSR_OSD_ADDR_HI        40
+#define CSR_OSD_ADDR_LO        41
+#define CSR_OSD_WR             42
+#define CSR_CFG_MIRROR         43
+#define CSR_CFG_B2WFRAME       44
+#define CSR_CFG_W2BFRAME       45
 #define CSR_CFG_FASTG_B2GFRAME 46
 #define CSR_CFG_FASTG_W2GFRAME 47
-#define CSR_OSD_SCALE       48
-#define CSR_TONE_ADDR       49
-#define CSR_TONE_WR         50
-#define CSR_INPUT_CTRL      51
-#define CSR_STATUS          128
-#define CSR_ID0             129
-#define CSR_DAMAGE_COUNT_HI 130
-#define CSR_DAMAGE_COUNT_MID 131
-#define CSR_DAMAGE_COUNT_LO 132
+#define CSR_OSD_SCALE          48
+#define CSR_TONE_ADDR          49
+#define CSR_TONE_WR            50
+#define CSR_INPUT_CTRL         51
+#define CSR_STATUS             128
+#define CSR_ID0                129
+#define CSR_DAMAGE_COUNT_HI    130
+#define CSR_DAMAGE_COUNT_MID   131
+#define CSR_DAMAGE_COUNT_LO    132
 // Alias for 16bit registers
-#define CSR_LUT_ADDR        CSR_LUT_ADDR_HI
-#define CSR_OP_LEFT         CSR_OP_LEFT_HI
-#define CSR_OP_RIGHT        CSR_OP_RIGHT_HI
-#define CSR_OP_TOP          CSR_OP_TOP_HI
-#define CSR_OP_BOTTOM       CSR_OP_BOTTOM_HI
-#define CSR_CFG_V_ACT       CSR_CFG_V_ACT_HI
-#define CSR_CFG_H_ACT       CSR_CFG_H_ACT_HI
-#define CSR_OSD_LEFT        CSR_OSD_LEFT_HI
-#define CSR_OSD_RIGHT       CSR_OSD_RIGHT_HI
-#define CSR_OSD_TOP         CSR_OSD_TOP_HI
-#define CSR_OSD_BOTTOM      CSR_OSD_BOTTOM_HI
-#define CSR_OSD_ADDR        CSR_OSD_ADDR_HI
+#define CSR_LUT_ADDR   CSR_LUT_ADDR_HI
+#define CSR_OP_LEFT    CSR_OP_LEFT_HI
+#define CSR_OP_RIGHT   CSR_OP_RIGHT_HI
+#define CSR_OP_TOP     CSR_OP_TOP_HI
+#define CSR_OP_BOTTOM  CSR_OP_BOTTOM_HI
+#define CSR_CFG_V_ACT  CSR_CFG_V_ACT_HI
+#define CSR_CFG_H_ACT  CSR_CFG_H_ACT_HI
+#define CSR_OSD_LEFT   CSR_OSD_LEFT_HI
+#define CSR_OSD_RIGHT  CSR_OSD_RIGHT_HI
+#define CSR_OSD_TOP    CSR_OSD_TOP_HI
+#define CSR_OSD_BOTTOM CSR_OSD_BOTTOM_HI
+#define CSR_OSD_ADDR   CSR_OSD_ADDR_HI
 
 // Commands
-#define OP_EXT_REDRAW       0
-#define OP_EXT_SETMODE      1
+#define OP_EXT_REDRAW  0
+#define OP_EXT_SETMODE 1
 
 // Status bits
-#define STATUS_MIG_ERROR    7
-#define STATUS_MIF_ERROR    6
-#define STATUS_SYS_READY    5
-#define STATUS_OP_BUSY      4
-#define STATUS_OP_QUEUE     3
-#define CTRL_ENABLE         0
+#define STATUS_MIG_ERROR 7
+#define STATUS_MIF_ERROR 6
+#define STATUS_SYS_READY 5
+#define STATUS_OP_BUSY   4
+#define STATUS_OP_QUEUE  3
+#define CTRL_ENABLE      0
 
-#define WAVEFORM_SIZE       (4*1024)
+#define WAVEFORM_SIZE (4 * 1024)
 
-#define FRAME_RATE_HZ       (60)
+#define FRAME_RATE_HZ (60)
 
 typedef enum {
     UM_MANUAL_LUT_NO_DITHER = 0,
@@ -123,5 +123,5 @@ typedef enum {
 void intapi_init(void);
 void intapi_load_waveform(uint8_t *waveform, uint8_t frames);
 void intapi_redraw(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1);
-void intapi_setmode(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1,
-        UPDATE_MODE mode);
+void intapi_setmode(
+    uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1, UPDATE_MODE mode);

@@ -33,7 +33,7 @@ static int x_counter;
 static int y_counter;
 static int last_hs;
 
-//#define USE_DBG_OUTPUT
+// #define USE_DBG_OUTPUT
 
 #define ACCEL 20
 
@@ -50,7 +50,7 @@ void dispsim_set_pixel(uint32_t *pixels, int x, int y, uint8_t input) {
     // Note: this is very wrong
     int32_t pixel = localbuf[y * DISP_WIDTH + x];
     int32_t speed = speedbuf[y * DISP_WIDTH + x];
-    int8_t accel = (input == 1) ? (0-ACCEL) : (input == 2) ? (ACCEL) : 0;
+    int8_t accel = (input == 1) ? (0 - ACCEL) : (input == 2) ? (ACCEL) : 0;
 
     speed += accel;
     pixel += speed;
@@ -100,7 +100,8 @@ void dispsim_render() {
     const float TARGET_FPS = 60.0f;
 
     int cur_ticks = SDL_GetTicks();
-    time_delta -= cur_ticks - last_ticks; // Actual ticks passed since last iteration
+    time_delta -=
+        cur_ticks - last_ticks; // Actual ticks passed since last iteration
     time_delta += 1000.0f / TARGET_FPS; // Time allocated for this iteration
     last_ticks = cur_ticks;
 
@@ -117,7 +118,8 @@ void dispsim_apply(uint32_t *pixels,
                    const uint8_t gdsp,
                    const uint8_t sdle,
                    [[maybe_unused]] const uint8_t sdoe,
-                   const uint8_t sd, const uint8_t sdce0,
+                   const uint8_t sd,
+                   const uint8_t sdce0,
                    [[maybe_unused]] const uint16_t dbg) {
     // SDLE = Hsync
     // GDSP = ~ Vsync
@@ -133,8 +135,7 @@ void dispsim_apply(uint32_t *pixels,
             y_counter = 0;
             line_valid = false;
             dispsim_render();
-        }
-        else {
+        } else {
             if (line_valid)
                 y_counter++;
         }
