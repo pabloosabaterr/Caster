@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "video-source.h"
+#include "log.h"
 #include "panel.h"
 #include "stb_image.h"
 #include "stb_image_resize.h"
@@ -15,9 +16,9 @@ static int frame_counter;
 void print_buffer(uint8_t *buf, size_t bytes) {
     for (size_t i = 0; i < bytes / 16; i++) {
         for (int j = 0; j < 16; j++) {
-            printf("%02x ", buf[i * 16 + j]);
+            log_debug("%02x ", buf[i * 16 + j]);
         }
-        printf("\n");
+        log_debug("\n");
     }
 }
 
@@ -125,7 +126,7 @@ void srcsim_next_frame() {
     if (!image_loaded) {
         int w, h, n;
         uint8_t *data = load_image("texture.jpg", &w, &h, &n);
-        printf("Input image size %d x %d (%d channels)\n", w, h, n);
+        log_debug("Input image size %d x %d (%d channels)\n", w, h, n);
         if (w != 20 || h != 20) {
             fprintf(stderr,
                     "error: texture.jpg must be 20 x 20, got %d x %d\n",
@@ -145,7 +146,7 @@ void srcsim_next_frame() {
             image[i] = data[i * n];
         }
         image_loaded = true;
-        printf("Image loaded\n");
+        log_info("Image loaded\n");
     }
 
     uint32_t rptr = 0;
@@ -222,7 +223,7 @@ void srcsim_next_frame() {
     sprintf(fn, "test%d.jpg", frame_counter / 100);
     int x, y, n;
     uint8_t *data = load_image(fn, &x, &y, &n);
-    printf("Input image size %d x %d (%d channels)\n", x, y, n);
+    log_debug("Input image size %d x %d (%d channels)\n", x, y, n);
     uint8_t *scaled = (uint8_t *)calloc(1, DISP_WIDTH * DISP_HEIGHT * n);
     float scalex, scaley;
     scalex = (float)DISP_WIDTH / (float)x;
