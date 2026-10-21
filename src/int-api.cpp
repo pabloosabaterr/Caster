@@ -24,8 +24,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <assert.h>
-#include "intapi.h"
-#include "spisim.h"
+#include "int-api.h"
+#include "spi.h"
 
 static UPDATE_MODE current_mode;
 static uint8_t waveform_frames;

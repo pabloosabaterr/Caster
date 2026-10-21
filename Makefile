@@ -35,19 +35,19 @@ LDFLAGS :=
 INCLUDES += \
 	-I$(SRCDIR) \
 	-I$(RTLDIR) \
-	-isystem third_party \
+	-isystem third-party \
 	-isystem $(RTLOBJDIR) \
 	-isystem $(VINCD) \
 	-isystem $(VINCD)/vltstd
 
 CXXSRCS += \
 	$(SRCDIR)/main.cpp \
-	$(SRCDIR)/dispsim.cpp \
-	$(SRCDIR)/intapi.cpp \
-	$(SRCDIR)/spisim.cpp \
-	$(SRCDIR)/srcsim.cpp \
+	$(SRCDIR)/panel.cpp \
+	$(SRCDIR)/int-api.cpp \
+	$(SRCDIR)/spi.cpp \
+	$(SRCDIR)/video-source.cpp \
 	$(SRCDIR)/stb.cpp \
-	$(SRCDIR)/vramsim.cpp \
+	$(SRCDIR)/vram.cpp \
 	verilated.cpp \
 	verilated_vcd_c.cpp \
 	verilated_threads.cpp

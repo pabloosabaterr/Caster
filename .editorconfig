@@ -5,6 +5,9 @@ charset = utf-8
 end_of_line = lf
 indent_style = space
 indent_size = 4
+max_line_length = 80
+insert_final_newline = true
+trim_trailing_whitespace = true
 
 [{Makefile,*.mk}]
 indent_style = tab
@@ -12,5 +15,10 @@ indent_style = tab
 [*.{yml,yaml}]
 indent_size = 2
 
-[*.md]
-max_line_length = 80
+# Not our code, keep it as upstream wrote it
+[third-party/**]
+indent_style = unset
+indent_size = unset
+max_line_length = unset
+insert_final_newline = unset
+trim_trailing_whitespace = unset

@@ -1,0 +1,36 @@
+# Formatting rules from CODING-GUIDELINES.md
+BasedOnStyle: LLVM
+Language: Cpp
+Standard: c++17
+
+# 4 spaces, no tabs, 80 columns
+IndentWidth: 4
+UseTab: Never
+ColumnLimit: 80
+
+# Braces on the same line, `} else {`
+BreakBeforeBraces: Attach
+
+# Single statements on their own line, never `if (x) y;`
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+AllowShortBlocksOnASingleLine: Never
+AllowShortFunctionsOnASingleLine: None
+AllowShortCaseLabelsOnASingleLine: false
+
+# `uint8_t *data`
+PointerAlignment: Right
+
+# Wrapped parameters and arguments: one per line, aligned with the first one
+AlignAfterOpenBracket: Align
+BinPackArguments: false
+BinPackParameters: false
+
+# `case` at the same level as `switch`
+IndentCaseLabels: false
+
+# Keep the aligned register maps in intapi.h
+AlignConsecutiveMacros: Consecutive
+
+# Do not reorder includes, order can matter (for example in stb.cpp)
+SortIncludes: Never

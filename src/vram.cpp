@@ -24,7 +24,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "vramsim.h"
+#include "vram.h"
 
 // 320*240*2 = 153.6KB = 19.2Kw
 #define VRAM_SIZE 32768

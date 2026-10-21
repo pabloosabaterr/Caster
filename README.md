@@ -69,7 +69,7 @@ make
 The `sim/` folder inside the `caster` submodule is the old copy of this
 simulator and is not used.
 
-Issues found so far are tracked in [KnownIssues.md](KnownIssues.md).
+Issues found so far are tracked in [KNOWN_ISSUES](KNOWN_ISSUES.md).
 
 A main roadmap has not yet been done.
 

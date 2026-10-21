@@ -30,11 +30,11 @@
 #include "verilated_vcd_c.h"
 #include "Vcaster.h"
 
-#include "dispsim.h"
-#include "srcsim.h"
-#include "vramsim.h"
-#include "spisim.h"
-#include "intapi.h"
+#include "panel.h"
+#include "video-source.h"
+#include "vram.h"
+#include "spi.h"
+#include "int-api.h"
 
 #define SIM_STEP 100000
 //#define MAX_CYCLES 500000

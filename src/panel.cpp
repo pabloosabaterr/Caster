@@ -23,7 +23,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
-#include "dispsim.h"
+#include "panel.h"
 #include <SDL.h>
 
 static uint8_t localbuf[DISP_WIDTH * DISP_HEIGHT];

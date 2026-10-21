@@ -24,8 +24,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "srcsim.h"
-#include "dispsim.h"
+#include "video-source.h"
+#include "panel.h"
 #include "stb_image.h"
 #include "stb_image_resize.h"
 

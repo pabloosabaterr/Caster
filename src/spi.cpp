@@ -25,7 +25,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <queue>
-#include "spisim.h"
+#include "spi.h"
 
 // Uncomment to print every byte received over SPI.
 //#define SPI_VERBOSE
