@@ -1,7 +1,7 @@
 BUILDDIR := build
 TARGET := $(BUILDDIR)/sim
 OBJODIR := $(BUILDDIR)/obj
-RTLDIR := ../rtl
+RTLDIR := caster/rtl
 
 ifeq ($(VERILATOR_ROOT),)
 VERILATOR_ROOT ?= $(shell verilator -getenv VERILATOR_ROOT)

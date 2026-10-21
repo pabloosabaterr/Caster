@@ -17,10 +17,10 @@
       also missing registers 48 to 51 from `rtl/defines.vh`.
 - [ ] The OSD enabled in `testmain()` covers 320 x 200 of the 320 x 240
       screen, hiding most of the input image.
-- [x] `noise.mem` and `default_waveform.mem` are referenced by bare file name
-      in `blue_noise_dithering.v` and `wvfmlut.v`, so `$readmem` only finds
-      them when running from the right directory. `noise.mem` was not found
-      from `sim/`.
+- [ ] `noise.mem` and `default_waveform.mem` are referenced by bare file name
+      in the RTL, so `$readmem` only finds them in the current directory. As
+      a workaround, a copy of `noise.mem` is kept in the repository root until
+      configurable paths are merged in Caster.
 - [ ] `TRACE` is defined by default in `main.cpp`, so every run writes all
       signals to `trace.vcd`, which grows fast and slows the simulation down.
 - [ ] `spisim.cpp:63`: prints every received SPI byte, flooding the terminal

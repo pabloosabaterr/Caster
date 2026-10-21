@@ -1,0 +1,4 @@
+[submodule "caster"]
+	path = caster
+	url = https://gitlab.com/zephray/caster.git
+	branch = master

@@ -1,4 +1,15 @@
-.cache/
+# Build output
 build/
+
+# Simulation output
+*.vcd
+
+# Editor and tooling
 compile_commands.json
+.cache/
+
+# macOS
+.DS_Store
+
+# tests
 texture.jpg

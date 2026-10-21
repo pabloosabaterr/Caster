@@ -3,7 +3,7 @@ all: $(TARGET)
 
 VOBJ ?= build/obj_dir
 CXX   := g++
-FBDIR := ../rtl
+FBDIR := caster/rtl
 CPUS ?= $(shell getconf _NPROCESSORS_ONLN)
 VERBOSE ?= 0
 
@@ -17,14 +17,12 @@ else
 VERILATOR := $(VERILATOR_ROOT)/bin/verilator
 endif
 VFLAGS := -Wall -Wno-fatal -MMD --trace -cc --Mdir $(VOBJ) \
-		-I../rtl \
-		-I../rtl/mulib/rtl \
-		-I../rtl/mulib/rtl/baseip \
-		-I../rtl/mulib/rtl/baseip/generic \
+		-Icaster/rtl \
+		-Icaster/rtl/mulib/rtl \
+		-Icaster/rtl/mulib/rtl/baseip \
+		-Icaster/rtl/mulib/rtl/baseip/generic \
 		-Wno-PINCONNECTEMPTY \
 		+define+SIMULATION=1 \
-		+define+NOISE_MEM=\"$(abspath ../rtl/noise.mem)\" \
-		+define+WAVEFORM_MEM=\"$(abspath default_waveform.mem)\"
 ifeq ($(VERBOSE), 1)
 VFLAGS += +define+VERBOSE=1
 endif
