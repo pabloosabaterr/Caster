@@ -64,6 +64,34 @@ make
 
 `make DEVELOPER=1` builds with `-Wextra -Wpedantic -Werror`.
 
+## Usage
+
+You can also run the program with some different options:
+
+```sh
+./build/sim [options] [+verilator-args]
+```
+
+| Option | Description |
+| --- | --- |
+| `-h`, `--help` | Show the help and exit |
+| `-V`, `--version` | Show the version and exit |
+| `-c`, `--cycles N` | Stop after `N` clock cycles (also `--cycles=N`) |
+| `--headless` | Run without a window, needs `--cycles` |
+| `-t`, `--trace` | Write a VCD trace of every signal to `trace.vcd` |
+| `--osd` | Show the OSD test pattern, off by default |
+| `-v`, `--verbose` | Print more details, like every SPI byte |
+| `-q`, `--quiet` | Print only errors |
+
+Options can be combined in any order:
+
+```sh
+# Run 2M cycles without a window and record a trace
+./build/sim --headless -c 2000000 --trace
+
+# Watch the panel with debug output
+./build/sim -v
+```
 ## Caveats
 
 The `sim/` folder inside the `caster` submodule is the old copy of this
