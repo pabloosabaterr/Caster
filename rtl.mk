@@ -22,7 +22,7 @@ VFLAGS := -Wall -Wno-fatal -MMD --trace -cc --Mdir $(VOBJ) \
 		-Icaster/rtl/mulib/rtl/baseip \
 		-Icaster/rtl/mulib/rtl/baseip/generic \
 		-Wno-PINCONNECTEMPTY \
-		+define+SIMULATION=1 \
+		+define+SIMULATION=1
 ifeq ($(VERBOSE), 1)
 VFLAGS += +define+VERBOSE=1
 endif

@@ -1,6 +1,7 @@
 BUILDDIR := build
 TARGET := $(BUILDDIR)/sim
 OBJODIR := $(BUILDDIR)/obj
+SRCDIR := src
 RTLDIR := caster/rtl
 
 ifeq ($(VERILATOR_ROOT),)
@@ -32,20 +33,21 @@ endif
 LDFLAGS :=
 
 INCLUDES += \
-	-I. \
+	-I$(SRCDIR) \
 	-I$(RTLDIR) \
+	-isystem third_party \
 	-isystem $(RTLOBJDIR) \
 	-isystem $(VINCD) \
 	-isystem $(VINCD)/vltstd
 
 CXXSRCS += \
-	./main.cpp \
-	./dispsim.cpp \
-	./intapi.cpp \
-	./spisim.cpp \
-	./srcsim.cpp \
-	./stb.cpp \
-	./vramsim.cpp \
+	$(SRCDIR)/main.cpp \
+	$(SRCDIR)/dispsim.cpp \
+	$(SRCDIR)/intapi.cpp \
+	$(SRCDIR)/spisim.cpp \
+	$(SRCDIR)/srcsim.cpp \
+	$(SRCDIR)/stb.cpp \
+	$(SRCDIR)/vramsim.cpp \
 	verilated.cpp \
 	verilated_vcd_c.cpp \
 	verilated_threads.cpp
