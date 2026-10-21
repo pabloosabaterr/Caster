@@ -10,6 +10,3 @@ compile_commands.json
 
 # macOS
 .DS_Store
-
-# tests
-texture.jpg

@@ -2,7 +2,8 @@
 
 > [!NOTE]
 > Cycle-accurate simulator of the [Caster](https://gitlab.com/zephray/caster)
-> electrophoretic display controller, originally part of the Caster repository.
+> electrophoretic display controller. Originally written by Wenting Zhang as
+> part of the Caster repository.
 > Maintained by [@pabloosabaterr](https://github.com/pabloosabaterr) and
 > [@pacoalbacetec](https://github.com/pacoalbacetec).
 
@@ -10,6 +11,25 @@
 > The simulator does not build natively on Windows. Use
 > [WSL](https://learn.microsoft.com/windows/wsl/install) and follow the Linux
 > instructions.
+
+The idea behind this project is to make e-ink development more accessible for
+anyone. Currently the monetary gap to start working on such technology is
+usually big, this means that people that want but can't afford to buy the
+hardware are left out.
+
+For that we want to develop a proper simulator opening the doors for anyone to
+contribute to this technology that is each day better and more relevant.
+
+> [!TIP]
+> If you want to contribute, check out [CONTRIBUTING.md](CONTRIBUTING.md)
+
+Any kind of help is welcome. We, Paco and Pablo, are two CS & Eng. students
+doing this in our free time, so the development will not be very rushed but
+continued.
+
+Feel free to reach us through email (pablo@pablosabater.dev,
+pacoalbacete06@gmail.com) or through the [Modos](https://www.modos.tech)
+[Discord](https://discord.com/invite/6ktE6VxSyh).
 
 ## Getting started
 
@@ -44,13 +64,14 @@ make
 
 `make DEVELOPER=1` builds with `-Wextra -Wpedantic -Werror`.
 
-`./build/sim` expects a `texture.jpg` of exactly 20 x 20 pixels in the
-current directory.
+## Caveats
 
 The `sim/` folder inside the `caster` submodule is the old copy of this
 simulator and is not used.
 
 Issues found so far are tracked in [KnownIssues.md](KnownIssues.md).
+
+A main roadmap has not yet been done.
 
 ## License
 
