@@ -4,9 +4,7 @@
 #include <string.h>
 #include <queue>
 #include "spi.h"
-
-// Uncomment to print every byte received over SPI.
-// #define SPI_VERBOSE
+#include "log.h"
 
 static const int SPI_DIV = 10;
 static int spi_divider = 0;
@@ -39,11 +37,9 @@ void spisim_apply(SpiBus &bus) {
             // negedge
             sck = 0;
             if (bit_counter == 0) {
-#ifdef SPI_VERBOSE
                 if (cs == 0) {
-                    printf("RX byte: %02x\n", spi_rx);
+                    log_debug("RX byte: %02x\n", spi_rx);
                 }
-#endif
                 if (byte_buf.empty()) {
                     // Empty, stop
                     cs = 1;

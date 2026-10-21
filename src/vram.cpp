@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "vram.h"
+#include "log.h"
 
 // 320*240*2 = 153.6KB = 19.2Kw
 #define VRAM_SIZE 32768
@@ -24,7 +25,7 @@ static void print_pixel(uint16_t pixel) {
     int mode = ((pixel >> 14) & 0x3);
     int fcnt = ((pixel >> 4) & 0x3f);
     int pixl = ((pixel) & 0xf);
-    printf("Mode: %d, Fcnt: %d, Pixl: %d\n", mode, fcnt, pixl);
+    log_debug("Mode: %d, Fcnt: %d, Pixl: %d\n", mode, fcnt, pixl);
 }
 
 void vramsim_apply(VramBus &bus) {
@@ -37,7 +38,7 @@ void vramsim_apply(VramBus &bus) {
         bus.bi_pixel = vram[rdptr++];
 #ifdef TRIGGER
         if (rdptr == TRIGGER) {
-            printf("Rd\n");
+            log_debug("Rd\n");
             print_pixel(bus.bi_pixel & 0xffff);
             print_pixel((bus.bi_pixel >> 16) & 0xffff);
             print_pixel((bus.bi_pixel >> 32) & 0xffff);
@@ -49,7 +50,7 @@ void vramsim_apply(VramBus &bus) {
         vram[wrptr++] = bus.bo_pixel;
 #ifdef TRIGGER
         if (wrptr == TRIGGER) {
-            printf("Wr\n");
+            log_debug("Wr\n");
             print_pixel(bus.bo_pixel & 0xffff);
             print_pixel((bus.bo_pixel >> 16) & 0xffff);
             print_pixel((bus.bo_pixel >> 32) & 0xffff);
