@@ -279,20 +279,17 @@ void srcsim_reset() {
     srcsim_next_frame();
 }
 
-void srcsim_apply(uint8_t &vsync,
-                  uint32_t &pixel,
-                  uint8_t &valid,
-                  const uint8_t ready) {
-    vsync = (y_counter == 0) ? 1 : 0;
-    valid = 1;
-    if (ready) {
+void srcsim_apply(VideoBus &bus) {
+    bus.vsync = (y_counter == 0) ? 1 : 0;
+    bus.valid = 1;
+    if (bus.ready) {
         uint32_t output = 0;
         for (int i = 0; i < 4; i++) {
             uint32_t p = pixels[y_counter * DISP_WIDTH + x_counter++];
             p = p << (3 - i) * 8;
             output |= p;
         }
-        pixel = output;
+        bus.pixel = output;
 
         if (x_counter == DISP_WIDTH) {
             x_counter = 0;
