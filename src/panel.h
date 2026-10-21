@@ -22,14 +22,18 @@
 //
 #pragma once
 
-// #define K3
+#include <cstdint>
+
+/* #define K3 */
 #define MONO
+
+class Display;
 
 constexpr int DISP_WIDTH = 320;
 constexpr int DISP_HEIGHT = 240;
 
 void dispsim_reset();
-void dispsim_apply(uint32_t *pixels,
+void dispsim_apply(Display &display,
                    const uint8_t gdoe,
                    const uint8_t gdclk,
                    const uint8_t gdsp,
