@@ -32,14 +32,9 @@ static constexpr int OSD_WIDTH = 320;
 static constexpr int OSD_HEIGHT = 200;
 static constexpr int OSD_BUF_SIZE = OSD_WIDTH * OSD_HEIGHT / 8;
 
-/*
- * TODO: Remove static local step variable.
- */
-void testmain(void) {
-    static int step = 0;
-    // This function is called every tick
+void Firmware::tick() {
     switch (step) {
-    case 0:
+    case Step::CONFIGURE:
         spi_write_reg8(CSR_CFG_V_FP, 3);
         spi_write_reg8(CSR_CFG_V_SYNC, 1);
         spi_write_reg8(CSR_CFG_V_BP, 2);
@@ -69,21 +64,15 @@ void testmain(void) {
         spi_write_reg8(CSR_ENABLE, 1); // Enable refresh
         // Read back status
         spi_write_reg8(CSR_STATUS, 0);
-        step = 1;
+        step = Step::WAIT_SPI;
         break;
-    case 1:
+    case Step::WAIT_SPI:
         if (!spi_is_busy()) {
             printf("Initialization over SPI done.\n");
-            step = 2;
+            step = Step::DONE;
         }
         break;
-    case 2:
-        /*if (tickcount > 200*1000) {
-            printf("Testing clearing\n");
-            intapi_redraw(40, 30, 120, 90);
-            step = 3;
-        }*/
+    case Step::DONE:
         break;
-        // Do more test here
     }
 }

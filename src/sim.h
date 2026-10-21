@@ -30,6 +30,7 @@
 class Vcaster;
 class VerilatedVcdC;
 class Display;
+class Firmware;
 
 /* The Caster core, its trace and the clock that drives it. */
 class Sim {
@@ -49,9 +50,10 @@ class Sim {
 
   private:
     Vcaster *core = nullptr;
+    Firmware *firmware = nullptr;
+    uint64_t tickcount = 0;
     /* TODO: Will wait until parse-args enables the --trace option */
     [[maybe_unused]] VerilatedVcdC *trace = nullptr;
-    uint64_t tickcount = 0;
 };
 
 #endif
