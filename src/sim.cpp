@@ -57,6 +57,7 @@ struct CoreInputs {
 Sim::Sim() {
     core = new Vcaster;
     Verilated::traceEverOn(true);
+    firmware = new Firmware;
 #ifdef TRACE
     trace = new VerilatedVcdC;
     core->trace(trace, 99);
@@ -70,6 +71,7 @@ Sim::~Sim() {
     delete trace;
 #endif
     delete core;
+    delete firmware;
 }
 
 void Sim::reset(Display &display) {
@@ -134,5 +136,5 @@ void Sim::tick(Display &display) {
 #endif
     tickcount++;
 
-    testmain();
+    firmware->tick();
 }
