@@ -81,6 +81,15 @@ static VideoBus read_video_bus(const Vcaster &core) {
     return bus;
 }
 
+static VramBus read_vram_bus(const Vcaster &core) {
+    VramBus bus;
+    bus.trigger = core.b_trigger;
+    bus.bi_ready = core.bi_ready;
+    bus.bo_pixel = core.bo_pixel;
+    bus.bo_valid = core.bo_valid;
+    return bus;
+}
+
 void Sim::tick(Display &display) {
     CoreInputs in{};
 
@@ -90,12 +99,8 @@ void Sim::tick(Display &display) {
     VideoBus video = read_video_bus(*core);
     srcsim_apply(video);
 
-    vramsim_apply(core->b_trigger,
-                  in.bi_pixel,
-                  in.bi_valid,
-                  core->bi_ready,
-                  core->bo_pixel,
-                  core->bo_valid);
+    VramBus vram = read_vram_bus(*core);
+    vramsim_apply(vram);
 
     spisim_apply(in.spi_cs, in.spi_sck, in.spi_mosi, core->spi_miso);
 
@@ -107,8 +112,8 @@ void Sim::tick(Display &display) {
     core->vin_vsync = video.vsync;
     core->vin_pixel = video.pixel;
     core->vin_valid = video.valid;
-    core->bi_pixel = in.bi_pixel;
-    core->bi_valid = in.bi_valid;
+    core->bi_pixel = vram.bi_pixel;
+    core->bi_valid = vram.bi_valid;
     core->spi_cs = in.spi_cs;
     core->spi_sck = in.spi_sck;
     core->spi_mosi = in.spi_mosi;

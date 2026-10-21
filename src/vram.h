@@ -4,10 +4,20 @@
 #include <cstdint>
 
 void vramsim_reset();
-void vramsim_apply(uint8_t b_trigger,
-                   uint64_t &bi_pixel,
-                   uint8_t &bi_valid,
-                   uint8_t bi_ready,
-                   uint64_t bo_pixel,
-                   uint8_t bo_valid);
+
+/* Bus between Caster and the external VRAM. */
+struct VramBus {
+    /* From Caster */
+    uint8_t trigger = 0;
+    uint8_t bi_ready = 0;
+    uint64_t bo_pixel = 0;
+    uint8_t bo_valid = 0;
+
+    /* To Caster */
+    uint64_t bi_pixel = 0;
+    uint8_t bi_valid = 0;
+};
+
+void vramsim_apply(VramBus &bus);
+
 #endif
