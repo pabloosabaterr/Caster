@@ -51,6 +51,8 @@ CXXSRCS += \
 	$(SRCDIR)/sim.cpp \
 	$(SRCDIR)/display.cpp \
 	$(SRCDIR)/firmware.cpp \
+	$(SRCDIR)/parse-options.cpp \
+	$(SRCDIR)/log.cpp \
 	verilated.cpp \
 	verilated_vcd_c.cpp \
 	verilated_threads.cpp
