@@ -27,40 +27,35 @@ static void print_pixel(uint16_t pixel) {
     printf("Mode: %d, Fcnt: %d, Pixl: %d\n", mode, fcnt, pixl);
 }
 
-void vramsim_apply(uint8_t b_trigger,
-                   uint64_t &bi_pixel,
-                   uint8_t &bi_valid,
-                   uint8_t bi_ready,
-                   uint64_t bo_pixel,
-                   uint8_t bo_valid) {
-    if (!last_trigger && b_trigger) {
+void vramsim_apply(VramBus &bus) {
+    if (!last_trigger && bus.trigger) {
         rdptr = 0;
         wrptr = 0;
     }
-    bi_valid = 1;
-    if (bi_ready) {
-        bi_pixel = vram[rdptr++];
+    bus.bi_valid = 1;
+    if (bus.bi_ready) {
+        bus.bi_pixel = vram[rdptr++];
 #ifdef TRIGGER
         if (rdptr == TRIGGER) {
             printf("Rd\n");
-            print_pixel(bi_pixel & 0xffff);
-            print_pixel((bi_pixel >> 16) & 0xffff);
-            print_pixel((bi_pixel >> 32) & 0xffff);
-            print_pixel((bi_pixel >> 48) & 0xffff);
+            print_pixel(bus.bi_pixel & 0xffff);
+            print_pixel((bus.bi_pixel >> 16) & 0xffff);
+            print_pixel((bus.bi_pixel >> 32) & 0xffff);
+            print_pixel((bus.bi_pixel >> 48) & 0xffff);
         }
 #endif
     }
-    if (bo_valid) {
-        vram[wrptr++] = bo_pixel;
+    if (bus.bo_valid) {
+        vram[wrptr++] = bus.bo_pixel;
 #ifdef TRIGGER
         if (wrptr == TRIGGER) {
             printf("Wr\n");
-            print_pixel(bo_pixel & 0xffff);
-            print_pixel((bo_pixel >> 16) & 0xffff);
-            print_pixel((bo_pixel >> 32) & 0xffff);
-            print_pixel((bo_pixel >> 48) & 0xffff);
+            print_pixel(bus.bo_pixel & 0xffff);
+            print_pixel((bus.bo_pixel >> 16) & 0xffff);
+            print_pixel((bus.bo_pixel >> 32) & 0xffff);
+            print_pixel((bus.bo_pixel >> 48) & 0xffff);
         }
 #endif
     }
-    last_trigger = b_trigger;
+    last_trigger = bus.trigger;
 }
