@@ -15,6 +15,22 @@ double sc_time_stamp() {
     return 0;
 }
 
+struct CoreInputs {
+    // Video input
+    uint8_t vin_vsync = 0;
+    uint32_t vin_pixel = 0;
+    uint8_t vin_valid = 0;
+
+    // VRAM read
+    uint64_t bi_pixel = 0;
+    uint8_t bi_valid = 0;
+
+    // SPI
+    uint8_t spi_cs = 1;
+    uint8_t spi_sck = 1;
+    uint8_t spi_mosi = 1;
+};
+
 Sim::Sim(bool enable_trace, bool show_osd) {
     core = new Vcaster;
     Verilated::traceEverOn(true);
