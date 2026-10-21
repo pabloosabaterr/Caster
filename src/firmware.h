@@ -7,6 +7,10 @@
  */
 class Firmware {
   public:
+    /* show_osd: draw the OSD test pattern, off by default */
+    explicit Firmware(bool show_osd = false) : show_osd(show_osd) {
+    }
+
     /* Run the next step of the firmware, called once per clock cycle. */
     void tick();
 
@@ -17,6 +21,7 @@ class Firmware {
         DONE,
     };
     Step step = Step::CONFIGURE;
+    bool show_osd;
 };
 
 #endif
