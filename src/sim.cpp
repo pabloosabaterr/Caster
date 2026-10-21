@@ -75,19 +75,28 @@ static PanelBus read_panel_bus(const Vcaster &core) {
     return bus;
 }
 
+static VideoBus read_video_bus(const Vcaster &core) {
+    VideoBus bus;
+    bus.ready = core.vin_ready;
+    return bus;
+}
+
 void Sim::tick(Display &display) {
     CoreInputs in{};
 
     /* Call simulated modules */
     dispsim_apply(display, read_panel_bus(*core));
 
-    srcsim_apply(in.vin_vsync, in.vin_pixel, in.vin_valid, core->vin_ready);
+    VideoBus video = read_video_bus(*core);
+    srcsim_apply(video);
+
     vramsim_apply(core->b_trigger,
                   in.bi_pixel,
                   in.bi_valid,
                   core->bi_ready,
                   core->bo_pixel,
                   core->bo_valid);
+
     spisim_apply(in.spi_cs, in.spi_sck, in.spi_mosi, core->spi_miso);
 
     /* Posedge */
@@ -95,9 +104,9 @@ void Sim::tick(Display &display) {
     core->eval();
 
     /* Apply changed input signals after clock edge */
-    core->vin_vsync = in.vin_vsync;
-    core->vin_pixel = in.vin_pixel;
-    core->vin_valid = in.vin_valid;
+    core->vin_vsync = video.vsync;
+    core->vin_pixel = video.pixel;
+    core->vin_valid = video.valid;
     core->bi_pixel = in.bi_pixel;
     core->bi_valid = in.bi_valid;
     core->spi_cs = in.spi_cs;
