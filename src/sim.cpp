@@ -62,19 +62,25 @@ void Sim::reset(Display &display) {
     core->sys_ready = 1;
 }
 
+static PanelBus read_panel_bus(const Vcaster &core) {
+    PanelBus bus;
+    bus.gdoe = core.epd_gdoe;
+    bus.gdclk = core.epd_gdclk;
+    bus.gdsp = core.epd_gdsp;
+    bus.sdle = core.epd_sdle;
+    bus.sdoe = core.epd_sdoe;
+    bus.sd = core.epd_sd;
+    bus.sdce0 = core.epd_sdce0;
+    bus.dbg_wvfm_tgt = core.dbg_wvfm_tgt;
+    return bus;
+}
+
 void Sim::tick(Display &display) {
     CoreInputs in{};
 
     /* Call simulated modules */
-    dispsim_apply(display,
-                  core->epd_gdoe,
-                  core->epd_gdclk,
-                  core->epd_gdsp,
-                  core->epd_sdle,
-                  core->epd_sdoe,
-                  core->epd_sd,
-                  core->epd_sdce0,
-                  core->dbg_wvfm_tgt);
+    dispsim_apply(display, read_panel_bus(*core));
+
     srcsim_apply(in.vin_vsync, in.vin_pixel, in.vin_valid, core->vin_ready);
     vramsim_apply(core->b_trigger,
                   in.bi_pixel,

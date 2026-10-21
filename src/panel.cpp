@@ -91,22 +91,14 @@ void dispsim_render(Display &display) {
         SDL_Delay(time_to_wait);
 }
 
-void dispsim_apply(Display &display,
-                   [[maybe_unused]] const uint8_t gdoe,
-                   [[maybe_unused]] const uint8_t gdclk,
-                   const uint8_t gdsp,
-                   const uint8_t sdle,
-                   [[maybe_unused]] const uint8_t sdoe,
-                   const uint8_t sd,
-                   const uint8_t sdce0,
-                   [[maybe_unused]] const uint16_t dbg) {
+void dispsim_apply(Display &display, const PanelBus &bus) {
     uint32_t *pixels = display.pixels();
     // SDLE = Hsync
     // GDSP = ~ Vsync
     // SDCE0 = ~ DE
-    uint8_t hs = sdle;
-    uint8_t vs = !gdsp;
-    uint8_t de = !sdce0;
+    uint8_t hs = bus.sdle;
+    uint8_t vs = !bus.gdsp;
+    uint8_t de = !bus.sdce0;
     static bool line_valid;
 
     if (!last_hs && hs) {
@@ -123,15 +115,15 @@ void dispsim_apply(Display &display,
 
     if (de) {
 #ifdef USE_DBG_OUTPUT
-        dispsim_set_pixel(pixels, x_counter++, y_counter, (dbg >> 12) & 0xf);
-        dispsim_set_pixel(pixels, x_counter++, y_counter, (dbg >> 8) & 0xf);
-        dispsim_set_pixel(pixels, x_counter++, y_counter, (dbg >> 4) & 0xf);
-        dispsim_set_pixel(pixels, x_counter++, y_counter, (dbg >> 0) & 0xf);
+        dispsim_set_pixel(pixels, x_counter++, y_counter, (bus.dbg >> 12) & 0xf);
+        dispsim_set_pixel(pixels, x_counter++, y_counter, (bus.dbg >> 8) & 0xf);
+        dispsim_set_pixel(pixels, x_counter++, y_counter, (bus.dbg >> 4) & 0xf);
+        dispsim_set_pixel(pixels, x_counter++, y_counter, (bus.dbg >> 0) & 0xf);
 #else
-        dispsim_set_pixel(pixels, x_counter++, y_counter, (sd >> 6) & 0x3);
-        dispsim_set_pixel(pixels, x_counter++, y_counter, (sd >> 4) & 0x3);
-        dispsim_set_pixel(pixels, x_counter++, y_counter, (sd >> 2) & 0x3);
-        dispsim_set_pixel(pixels, x_counter++, y_counter, (sd >> 0) & 0x3);
+        dispsim_set_pixel(pixels, x_counter++, y_counter, (bus.sd >> 6) & 0x3);
+        dispsim_set_pixel(pixels, x_counter++, y_counter, (bus.sd >> 4) & 0x3);
+        dispsim_set_pixel(pixels, x_counter++, y_counter, (bus.sd >> 2) & 0x3);
+        dispsim_set_pixel(pixels, x_counter++, y_counter, (bus.sd >> 0) & 0x3);
 #endif
         line_valid = true;
     }
