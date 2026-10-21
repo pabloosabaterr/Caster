@@ -74,6 +74,9 @@ void dispsim_reset() {
 }
 
 void dispsim_render(Display &display) {
+    if (display.is_headless())
+        return;
+
     static float time_delta = 0.0f;
     static int last_ticks = SDL_GetTicks();
     const float TARGET_FPS = 60.0f;
