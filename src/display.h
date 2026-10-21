@@ -11,7 +11,7 @@ struct SDL_Surface;
 /* The SDL window where the simulated panel is shown. */
 class Display {
   public:
-    Display(int width, int height, int scale);
+    Display(int width, int height, int scale, bool headless);
     ~Display();
 
     /* Framebuffer the panel model draws into, one ARGB pixel per element. */
@@ -25,9 +25,14 @@ class Display {
     /* Handle one pending window event, true if the window was closed. */
     bool poll_quit();
 
+    bool is_headless() const {
+        return headless;
+    }
+
   private:
     int width;
     int height;
+    bool headless;
     SDL_Window *window = nullptr;
     SDL_Renderer *renderer = nullptr;
     SDL_Texture *texture = nullptr;

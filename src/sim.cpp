@@ -8,28 +8,29 @@
 
 #include <Vcaster.h>
 #include <cstdint>
+#include "verilated_vcd_c.h"
 
 /* Legacy function required by some platforms/ versions of Verilator */
 double sc_time_stamp() {
     return 0;
 }
 
-Sim::Sim() {
+Sim::Sim(bool enable_trace, bool show_osd) {
     core = new Vcaster;
     Verilated::traceEverOn(true);
-    firmware = new Firmware;
-#ifdef TRACE
-    trace = new VerilatedVcdC;
-    core->trace(trace, 99);
-    trace->open("trace.vcd");
-#endif
+    firmware = new Firmware(show_osd);
+    if (enable_trace) {
+        trace = new VerilatedVcdC;
+        core->trace(trace, 99);
+        trace->open("trace.vcd");
+    }
 }
 
 Sim::~Sim() {
-#ifdef TRACE
-    trace->close();
-    delete trace;
-#endif
+    if (trace) {
+        trace->close();
+        delete trace;
+    }
     delete core;
     delete firmware;
 }
@@ -109,16 +110,15 @@ void Sim::tick(Display &display) {
 
     /* Let combinational changes propagate */
     core->eval();
-#ifdef TRACE
-    trace->dump(tickcount * 10);
-#endif
+    if (trace)
+        trace->dump(tickcount * 10);
 
     /* Negedge */
     core->clk = 0;
     core->eval();
-#ifdef TRACE
-    trace->dump(tickcount * 10 + 5);
-#endif
+    if (trace)
+        trace->dump(tickcount * 10 + 5);
+
     tickcount++;
 
     firmware->tick();

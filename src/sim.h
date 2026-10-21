@@ -11,7 +11,7 @@ class Firmware;
 /* The Caster core, its trace and the clock that drives it. */
 class Sim {
   public:
-    Sim();
+    explicit Sim(bool enable_trace, bool show_osd);
     ~Sim();
 
     /* Hold the core in reset and reset every model. */
@@ -28,8 +28,7 @@ class Sim {
     Vcaster *core = nullptr;
     Firmware *firmware = nullptr;
     uint64_t tickcount = 0;
-    /* TODO: Will wait until parse-args enables the --trace option */
-    [[maybe_unused]] VerilatedVcdC *trace = nullptr;
+    VerilatedVcdC *trace = nullptr;
 };
 
 #endif
