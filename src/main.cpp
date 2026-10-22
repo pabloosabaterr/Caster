@@ -124,8 +124,13 @@ int main(int argc, char *argv[]) {
     if ((opt.watch_x == UINT64_MAX) != (opt.watch_y == UINT64_MAX))
         die("--watch-x and --watch-y must be used together");
 
-    if (opt.watch_x != UINT64_MAX)
+    if (opt.watch_x != UINT64_MAX) {
+        if (opt.watch_x >= DISP_WIDTH || opt.watch_y >= DISP_HEIGHT)
+            die("--watch-x and --watch-y must be inside the %dx%d panel",
+                DISP_WIDTH,
+                DISP_HEIGHT);
         watch = {opt.watch_x, opt.watch_y};
+    }
 
     Verilated::commandArgs(argc, argv);
 
