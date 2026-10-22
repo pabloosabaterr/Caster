@@ -8,7 +8,6 @@
 
 #include <Vcaster.h>
 #include <cstdint>
-#include <string_view>
 #include "verilated_vcd_c.h"
 
 /* Legacy function required by some platforms/ versions of Verilator */
@@ -34,12 +33,12 @@ struct CoreInputs {
 
 Sim::Sim(bool enable_trace,
          bool show_osd,
-         std::string_view source,
+         SourceType source_type,
          PanelType panel_type) {
     core = new Vcaster;
     Verilated::traceEverOn(true);
     firmware = new Firmware(show_osd);
-    video_source = new VideoSource(source, panel_type);
+    video_source = new VideoSource(source_type, panel_type);
     panel = new Panel(panel_type);
     if (enable_trace) {
         trace = new VerilatedVcdC;
