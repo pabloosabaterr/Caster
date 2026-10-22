@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <string_view>
-#include <unordered_map>
 #include "video-source.h"
 #include "log.h"
 #include "panel.h"
@@ -20,27 +19,25 @@ void print_buffer(uint8_t *buf, size_t bytes) {
     }
 }
 
-static uint8_t rgb2y(uint32_t r,
-                     uint32_t g,
-                     uint32_t b,
-                     [[maybe_unused]] int x,
-                     [[maybe_unused]] int y) {
-#ifdef K3
-    int c = (x + (DISP_HEIGHT - y)) % 3;
-    if (c == 0)
-        return r;
-    else if (c == 1)
-        return b;
-    else
-        return g;
-#endif
-#ifdef MONO
-    r = r * 77;
-    g = g * 150;
-    b = b * 29;
-    uint32_t yy = r + g + b;
-    return (yy >> 8);
-#endif
+uint8_t VideoSource::rgb2y(uint32_t r, uint32_t g, uint32_t b, int x, int y) {
+    switch (panel) {
+    case PanelType::KALEIDO3: {
+        int c = (x + (DISP_HEIGHT - y)) % 3;
+        if (c == 0)
+            return r;
+        else if (c == 1)
+            return b;
+        else
+            return g;
+    }
+    case PanelType::MONOCHROME: {
+        r = r * 77;
+        g = g * 150;
+        b = b * 29;
+        uint32_t yy = r + g + b;
+        return (yy >> 8);
+    }
+    }
 }
 
 // Wrapper around stbi_load() to prevent segfault when there's no image
@@ -57,8 +54,9 @@ static uint8_t *load_image(const char *fn, int *x, int *y, int *n) {
     return data;
 }
 
-VideoSource::VideoSource(std::string_view source) {
-        static const std::unordered_map<std::string_view, SourceFn> SOURCES = {
+VideoSource::VideoSource(std::string_view source, PanelType panel)
+    : panel(panel) {
+    static const std::unordered_map<std::string_view, SourceFn> SOURCES = {
         {"box", &VideoSource::source_box},
         {"fixed-border", &VideoSource::source_fixed_border},
         {"fixed-color", &VideoSource::source_fixed_color},
@@ -223,7 +221,7 @@ void VideoSource::source_blink() {
     }
 }
 
- void VideoSource::source_image() {
+void VideoSource::source_image() {
     if ((frame_counter % 100) != 0) {
         frame_counter++;
         if (frame_counter == 400)

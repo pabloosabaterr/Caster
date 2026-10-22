@@ -12,7 +12,6 @@
 #include "sim.h"
 #include "util.h"
 #include "log.h"
-#include "video-source.h"
 
 /* Cycles simulated between window title updates */
 constexpr uint32_t SIM_STEP = 100000;
@@ -39,7 +38,10 @@ constexpr char HELP_MENU[] =
     "                           - fixed-color   four gray bands\n"
     "                           - fixed-swap    gray bands swapped every 100 frames\n"
     "                           - blink         full black and white, alternating\n"
-    "                           - image         test0.jpg, test1.jpg... scaled\n";
+    "                           - image         test0.jpg, test1.jpg... scaled\n"
+    " -p, --panel <panel>     panel type (default: mono):\n"
+    "                           - mono\n"
+    "                           - kaleido3\n";
 /* clang-format on */
 
 struct SimOptions {
@@ -52,6 +54,7 @@ struct SimOptions {
     bool quiet = false;
     uint64_t cycles = 0;
     std::string_view source = "box";
+    std::string_view panel = "mono";
 };
 
 static SimOptions opt;
@@ -68,6 +71,7 @@ int main(int argc, char *argv[]) {
         {'q', "quiet",    &opt.quiet},
         {'c', "cycles",   &opt.cycles},
         {'s', "source",   &opt.source},
+        {'p', "panel",    &opt.panel},
     };
     /* clang-format on */
 
@@ -100,10 +104,12 @@ int main(int argc, char *argv[]) {
     if (opt.headless && !opt.cycles)
         die("--headless needs --cycles, it would never stop");
 
+    PanelType panel_type = parse_choice("panel", opt.panel, PANEL_TYPES);
+
     Verilated::commandArgs(argc, argv);
 
     Display display(DISP_WIDTH, DISP_HEIGHT, DISP_FACTOR, opt.headless);
-    Sim sim(opt.trace, opt.osd, opt.source);
+    Sim sim(opt.trace, opt.osd, opt.source, panel_type);
 
     log_info("Simulation start.\n");
     sim.reset(display);

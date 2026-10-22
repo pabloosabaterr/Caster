@@ -7,18 +7,15 @@
 
 #include <SDL.h>
 
-static uint8_t localbuf[DISP_WIDTH * DISP_HEIGHT];
-static int8_t speedbuf[DISP_WIDTH * DISP_HEIGHT];
-
-static int x_counter;
-static int y_counter;
-static int last_hs;
-
 // #define USE_DBG_OUTPUT
 
 #define ACCEL 20
 
-void dispsim_set_pixel(uint32_t *pixels, int x, int y, uint8_t input) {
+Panel::Panel(PanelType type) : type(type) {
+    reset();
+}
+
+void Panel::set_pixel(uint32_t *pixels, int x, int y, uint8_t input) {
     if (x >= DISP_WIDTH)
         return;
     if (y >= DISP_HEIGHT)
@@ -51,34 +48,40 @@ void dispsim_set_pixel(uint32_t *pixels, int x, int y, uint8_t input) {
     speedbuf[y * DISP_WIDTH + x] = speed;
 #endif
 
-#ifdef K3
-    int c = (x_counter + (DISP_HEIGHT - y_counter)) % 3;
-    if (c == 0)
-        pixel = 0xff000000 | (pixel << 16);
-    else if (c == 1)
-        pixel = 0xff000000 | pixel;
-    else
-        pixel = 0xff000000 | (pixel << 8);
-#endif
-#ifdef MONO
-    pixel = (pixel << 16) | (pixel << 8) | (pixel) | 0xff000000ul;
-#endif
+    switch (type) {
+    case PanelType::KALEIDO3: {
+        int c = (x + (DISP_HEIGHT - y)) % 3;
+        if (c == 0)
+            pixel = 0xff000000 | (pixel << 16);
+        else if (c == 1)
+            pixel = 0xff000000 | pixel;
+        else
+            pixel = 0xff000000 | (pixel << 8);
+        break;
+    }
+    case PanelType::MONOCHROME: {
+        pixel = (pixel << 16) | (pixel << 8) | (pixel) | 0xff000000ul;
+        break;
+    }
+    }
     pixels[y * DISP_WIDTH + x] = pixel;
 }
 
-void dispsim_reset() {
+void Panel::reset() {
     x_counter = 0;
     y_counter = 0;
     last_hs = 0;
     memset(localbuf, 0xff, sizeof(localbuf));
+    last_ticks = SDL_GetTicks();
+    line_valid = false;
+    time_delta = 0;
+    memset(speedbuf, 0, sizeof(speedbuf));
 }
 
-void dispsim_render(Display &display) {
+void Panel::render(Display &display) {
     if (display.is_headless())
         return;
 
-    static float time_delta = 0.0f;
-    static int last_ticks = SDL_GetTicks();
     const float TARGET_FPS = 60.0f;
 
     int cur_ticks = SDL_GetTicks();
@@ -94,7 +97,7 @@ void dispsim_render(Display &display) {
         SDL_Delay(time_to_wait);
 }
 
-void dispsim_apply(Display &display, const PanelBus &bus) {
+void Panel::apply(Display &display, const PanelBus &bus) {
     uint32_t *pixels = display.pixels();
     // SDLE = Hsync
     // GDSP = ~ Vsync
@@ -102,14 +105,13 @@ void dispsim_apply(Display &display, const PanelBus &bus) {
     uint8_t hs = bus.sdle;
     uint8_t vs = !bus.gdsp;
     uint8_t de = !bus.sdce0;
-    static bool line_valid;
 
     if (!last_hs && hs) {
         x_counter = 0;
         if (vs) {
             y_counter = 0;
             line_valid = false;
-            dispsim_render(display);
+            render(display);
         } else {
             if (line_valid)
                 y_counter++;
@@ -118,15 +120,15 @@ void dispsim_apply(Display &display, const PanelBus &bus) {
 
     if (de) {
 #ifdef USE_DBG_OUTPUT
-        dispsim_set_pixel(pixels, x_counter++, y_counter, (bus.dbg >> 12) & 0xf);
-        dispsim_set_pixel(pixels, x_counter++, y_counter, (bus.dbg >> 8) & 0xf);
-        dispsim_set_pixel(pixels, x_counter++, y_counter, (bus.dbg >> 4) & 0xf);
-        dispsim_set_pixel(pixels, x_counter++, y_counter, (bus.dbg >> 0) & 0xf);
+        set_pixel(pixels, x_counter++, y_counter, (bus.dbg >> 12) & 0xf);
+        set_pixel(pixels, x_counter++, y_counter, (bus.dbg >> 8) & 0xf);
+        set_pixel(pixels, x_counter++, y_counter, (bus.dbg >> 4) & 0xf);
+        set_pixel(pixels, x_counter++, y_counter, (bus.dbg >> 0) & 0xf);
 #else
-        dispsim_set_pixel(pixels, x_counter++, y_counter, (bus.sd >> 6) & 0x3);
-        dispsim_set_pixel(pixels, x_counter++, y_counter, (bus.sd >> 4) & 0x3);
-        dispsim_set_pixel(pixels, x_counter++, y_counter, (bus.sd >> 2) & 0x3);
-        dispsim_set_pixel(pixels, x_counter++, y_counter, (bus.sd >> 0) & 0x3);
+        set_pixel(pixels, x_counter++, y_counter, (bus.sd >> 6) & 0x3);
+        set_pixel(pixels, x_counter++, y_counter, (bus.sd >> 4) & 0x3);
+        set_pixel(pixels, x_counter++, y_counter, (bus.sd >> 2) & 0x3);
+        set_pixel(pixels, x_counter++, y_counter, (bus.sd >> 0) & 0x3);
 #endif
         line_valid = true;
     }
