@@ -49,7 +49,7 @@ not `struct CoreInputs inputs;`.
 
 ## Language
 
-- C++17.
+- C++20.
 - Use `constexpr` for constants. Use `#define` only for what the preprocessor
   needs, such as `#ifdef` switches and include guards.
 - Every header has an include guard, named after the file in UPPER_CASE:
