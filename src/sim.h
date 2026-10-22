@@ -17,7 +17,8 @@ class Sim {
     explicit Sim(bool enable_trace,
                  bool show_osd,
                  SourceType source,
-                 PanelType panel);
+                 PanelType panel,
+                 bool dbg);
     ~Sim();
 
     /* Hold the core in reset and reset every model. */

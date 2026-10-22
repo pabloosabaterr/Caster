@@ -1,5 +1,5 @@
+#include <cstdint>
 #include <stdio.h>
-#include <stdint.h>
 #include <string.h>
 
 #include "panel.h"
@@ -7,46 +7,51 @@
 
 #include <SDL.h>
 
-// #define USE_DBG_OUTPUT
-
 #define ACCEL 20
 
-Panel::Panel(PanelType type) : type(type) {
+Panel::Panel(PanelType type, bool dbg) : type(type), dbg(dbg) {
     reset();
 }
 
 void Panel::set_pixel(uint32_t *pixels, int x, int y, uint8_t input) {
+    int32_t pixel;
     if (x >= DISP_WIDTH)
         return;
     if (y >= DISP_HEIGHT)
         return;
-#ifdef USE_DBG_OUTPUT
-    int32_t pixel = input | (input << 4);
-#else
-    // Note: this is very wrong
-    int32_t pixel = localbuf[y * DISP_WIDTH + x];
-    int32_t speed = speedbuf[y * DISP_WIDTH + x];
-    int8_t accel = (input == 1) ? (0 - ACCEL) : (input == 2) ? (ACCEL) : 0;
 
-    speed += accel;
-    pixel += speed;
+    if (dbg) {
+        pixel = input | (input << 4);
+    } else {
+        /*
+         * Very rough model of the ink: each pixel has a level and a speed, the
+         * drive from Caster accelerates it towards black or white and friction
+         * slows it down. ACCEL and the 0.9 friction are not based on any real
+         * panel, so transition times and ghosting are only indicative.
+         */
+        pixel = localbuf[y * DISP_WIDTH + x];
+        int32_t speed = speedbuf[y * DISP_WIDTH + x];
+        int8_t accel = (input == 1) ? (0 - ACCEL) : (input == 2) ? (ACCEL) : 0;
 
-    if (speed > 127)
-        speed = 127;
-    else if (speed < -128)
-        speed = -128;
-    // without external acceleration, it de-accelerate itself
-    speed *= 0.9f;
+        speed += accel;
+        pixel += speed;
 
-    if (pixel > 255)
-        pixel = 255;
-    else if (pixel < 0)
-        pixel = 0;
+        if (speed > 127)
+            speed = 127;
+        else if (speed < -128)
+            speed = -128;
+        // without external acceleration, it de-accelerate itself
+        speed *= 0.9f;
 
-    // otherwise, nop
-    localbuf[y * DISP_WIDTH + x] = pixel;
-    speedbuf[y * DISP_WIDTH + x] = speed;
-#endif
+        if (pixel > 255)
+            pixel = 255;
+        else if (pixel < 0)
+            pixel = 0;
+
+        // otherwise, nop
+        localbuf[y * DISP_WIDTH + x] = pixel;
+        speedbuf[y * DISP_WIDTH + x] = speed;
+    }
 
     switch (type) {
     case PanelType::KALEIDO3: {
@@ -119,17 +124,21 @@ void Panel::apply(Display &display, const PanelBus &bus) {
     }
 
     if (de) {
-#ifdef USE_DBG_OUTPUT
-        set_pixel(pixels, x_counter++, y_counter, (bus.dbg >> 12) & 0xf);
-        set_pixel(pixels, x_counter++, y_counter, (bus.dbg >> 8) & 0xf);
-        set_pixel(pixels, x_counter++, y_counter, (bus.dbg >> 4) & 0xf);
-        set_pixel(pixels, x_counter++, y_counter, (bus.dbg >> 0) & 0xf);
-#else
-        set_pixel(pixels, x_counter++, y_counter, (bus.sd >> 6) & 0x3);
-        set_pixel(pixels, x_counter++, y_counter, (bus.sd >> 4) & 0x3);
-        set_pixel(pixels, x_counter++, y_counter, (bus.sd >> 2) & 0x3);
-        set_pixel(pixels, x_counter++, y_counter, (bus.sd >> 0) & 0x3);
-#endif
+        if (dbg) {
+            set_pixel(
+                pixels, x_counter++, y_counter, (bus.dbg_wvfm_tgt >> 12) & 0xf);
+            set_pixel(
+                pixels, x_counter++, y_counter, (bus.dbg_wvfm_tgt >> 8) & 0xf);
+            set_pixel(
+                pixels, x_counter++, y_counter, (bus.dbg_wvfm_tgt >> 4) & 0xf);
+            set_pixel(
+                pixels, x_counter++, y_counter, (bus.dbg_wvfm_tgt >> 0) & 0xf);
+        } else {
+            set_pixel(pixels, x_counter++, y_counter, (bus.sd >> 6) & 0x3);
+            set_pixel(pixels, x_counter++, y_counter, (bus.sd >> 4) & 0x3);
+            set_pixel(pixels, x_counter++, y_counter, (bus.sd >> 2) & 0x3);
+            set_pixel(pixels, x_counter++, y_counter, (bus.sd >> 0) & 0x3);
+        }
         line_valid = true;
     }
 
