@@ -66,32 +66,43 @@ make
 
 ## Usage
 
-You can also run the program with some different options:
-
 ```sh
-./build/sim [options] [+verilator-args]
+./build/sim {[options] | [verilator-args]}
 ```
 
-| Option | Description |
-| --- | --- |
-| `-h`, `--help` | Show the help and exit |
-| `-V`, `--version` | Show the version and exit |
-| `-c`, `--cycles N` | Stop after `N` clock cycles (also `--cycles=N`) |
-| `--headless` | Run without a window, needs `--cycles` |
-| `-t`, `--trace` | Write a VCD trace of every signal to `trace.vcd` |
-| `--osd` | Show the OSD test pattern, off by default |
-| `-v`, `--verbose` | Print more details, like every SPI byte |
-| `-q`, `--quiet` | Print only errors |
+```txt
+Caster simulator usage:
+ -h, --help              show this help and exit
+ -V, --version           show the version and exit
+     --headless          run without a window, needs --cycles
+ -t, --trace             write a VCD trace to trace.vcd
+     --osd               show the OSD test pattern (default: off)
+ -q, --quiet             print only errors
+ -v, --verbose           print more details
+ -c, --cycles <n>        stop after <n> clock cycles (default: never)
+ -s, --source <source>   input to show (default: box):
+                           - box           20x20 texture bouncing around
+                           - fixed-border  black border on white
+                           - fixed-color   four gray bands
+                           - fixed-swap    gray bands swapped every 100 frames
+                           - blink         full black and white, alternating
+                           - image         test0.jpg, test1.jpg... scaled
+ -p, --panel <panel>     panel type (default: mono):
+                           - mono
+                           - kaleido3
+```
 
-Options can be combined in any order:
+Options that take a value also accept `--option=value`, for example
+`--cycles=2000000`.
 
 ```sh
 # Run 2M cycles without a window and record a trace
 ./build/sim --headless -c 2000000 --trace
 
-# Watch the panel with debug output
-./build/sim -v
+# Kaleido 3 color panel showing the test images
+./build/sim --panel kaleido3 --source image
 ```
+
 ## Caveats
 
 The `sim/` folder inside the `caster` submodule is the old copy of this
