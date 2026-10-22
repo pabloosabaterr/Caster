@@ -5,6 +5,12 @@
 #include <cerrno>
 #include <cstdint>
 #include <cstdlib>
+#include <string.h>
+#include <string_view>
+#include <variant>
+
+static constexpr size_t LONG_PREFIX_SIZE = 2;
+static constexpr size_t SHORT_PREFIX_SIZE = 1;
 
 static bool parse_u64(const char *s, uint64_t *out) {
     if (!isdigit(static_cast<unsigned char>(*s)))
@@ -43,7 +49,7 @@ int parse_options(int argc, char **argv, const Option *options, size_t n) {
 
             size_t eq = name.find('=');
             if (eq != std::string_view::npos) {
-                value = argv[i] + 2 + eq + 1;
+                value = argv[i] + LONG_PREFIX_SIZE + eq + SHORT_PREFIX_SIZE;
                 name = name.substr(0, eq);
             }
 
