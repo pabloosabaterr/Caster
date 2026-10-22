@@ -73,16 +73,29 @@ int parse_options(int argc, char **argv, const Option *options, size_t n) {
         if (!found)
             die("unknown option '%s'", argv[i]);
 
+        const char *opt_name = argv[i];
+        bool needs_val = !std::holds_alternative<bool *>(found->val);
+        if (needs_val && !value) {
+            if (i + 1 >= argc)
+                die("option '%s' needs a value", opt_name);
+            value = argv[++i];
+        }
+
         std::visit(
             overloaded{
                 [&](bool *p) {
                     if (value)
-                        die("option '%s' takes no value", argv[i]);
+                        die("option '%s' takes no value", opt_name);
                     *p = true;
                 },
                 [&](uint64_t *p) {
                     if (!parse_u64(value, p))
-                        die("invalid number '%s' for '%s'", value, argv[i]);
+                        die("invalid number '%s' for '%s'", value, opt_name);
+                },
+                [&](std::string_view *p) {
+                    if (*value == '\0')
+                        die("option '%s' needs a value", opt_name);
+                    *p = value;
                 },
             },
             found->val);

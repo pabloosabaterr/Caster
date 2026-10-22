@@ -2,6 +2,7 @@
 #include <cstdio>
 
 #include <SDL.h>
+#include <string_view>
 
 #include "verilated.h"
 
@@ -29,7 +30,9 @@ constexpr char HELP_MENU[] =
     "     --osd        show the OSD test pattern\n"
     " -q, --quiet      print only errors\n"
     " -v, --verbose    print more details\n"
-    " -c, --cycles N   stop after N clock cycles\n";
+    " -c, --cycles N   stop after N clock cycles\n"
+    " -s, --source SRC input to show, one of: bounce (default),\n"
+    "                  border, bars, bars-flip, flash, images, stdin\n";
 
 struct SimOptions {
     bool help = false;
