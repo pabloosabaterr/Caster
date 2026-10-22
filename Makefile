@@ -22,7 +22,7 @@ CXXFLAGS := \
 	$(shell $(SDL_CONFIG) --cflags) \
 	-Wall -Og -g \
 	-faligned-new \
-	-std=c++17
+	-std=c++20
 
 # Extra checks for the testbench sources only, not the Verilator runtime
 DEVFLAGS :=

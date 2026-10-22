@@ -36,7 +36,7 @@ pacoalbacete06@gmail.com) or through the [Modos](https://www.modos.tech)
 To make it work you'll need:
 - [Verilator](https://verilator.org) (tested with 5.052)
 - SDL2
-- A C++17 compiler and GNU Make
+- A C++20 compiler and GNU Make
 - The `caster` submodule, which contains the RTL:
 
 ```sh
