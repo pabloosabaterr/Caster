@@ -7,6 +7,7 @@
 #include "panel.h"
 #include "stb_image.h"
 #include "stb_image_resize.h"
+#include "util.h"
 
 void print_buffer(uint8_t *buf, size_t bytes) {
     for (size_t i = 0; i < bytes / 16; i++) {
@@ -35,6 +36,8 @@ uint8_t VideoSource::rgb2y(uint32_t r, uint32_t g, uint32_t b, int x, int y) {
         uint32_t yy = r + g + b;
         return (yy >> 8);
     }
+    default:
+        die("unknown panel type");
     }
 }
 
