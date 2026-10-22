@@ -40,20 +40,22 @@ struct SimOptions {
     bool verbose = false;
     bool quiet = false;
     uint64_t cycles = 0;
+    std::string_view source;
 };
 
 static SimOptions opt;
 
 int main(int argc, char *argv[]) {
     const Option options[] = {
-        OPT_BOOL('h', "help", &opt.help),
-        OPT_BOOL(0, "headless", &opt.headless),
-        OPT_BOOL('V', "version", &opt.version),
-        OPT_BOOL(0, "osd", &opt.osd),
-        OPT_BOOL('t', "trace", &opt.trace),
-        OPT_BOOL('v', "verbose", &opt.verbose),
-        OPT_BOOL('q', "quiet", &opt.quiet),
-        OPT_U64('c', "cycles", &opt.cycles),
+        {'h', "help",     &opt.help},
+        {0,   "headless", &opt.headless},
+        {'V', "version",  &opt.version},
+        {0,   "osd",      &opt.osd},
+        {'t', "trace",    &opt.trace},
+        {'v', "verbose",  &opt.verbose},
+        {'q', "quiet",    &opt.quiet},
+        {'c', "cycles",   &opt.cycles},
+        {'s', "source",   &opt.source},
     };
 
     int argi = parse_options(argc, argv, options, std::size(options));
