@@ -1,10 +1,12 @@
 #ifndef PARSE_OPTIONS_H
 #define PARSE_OPTIONS_H
 
+#include "util.h"
 #include <cstddef>
 #include <cstdint>
 #include <string_view>
 #include <variant>
+#include <unordered_map>
 
 struct Option {
     /* Abbreviated form for the command example: "-n" for "--dry-run". */
@@ -24,5 +26,15 @@ struct Option {
  * Stops at the first argument that is not an option and returns its index.
  */
 int parse_options(int argc, char **argv, const Option *options, size_t n);
+
+template <class T>
+T parse_choice(const char *what,
+               std::string_view name,
+               const std::unordered_map<std::string_view, T> &choices) {
+    auto it = choices.find(name);
+    if (it == choices.end())
+        die("unknown %s '%.*s'", what, (int)name.size(), name.data());
+    return it->second;
+}
 
 #endif
