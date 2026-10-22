@@ -22,18 +22,25 @@ constexpr uint32_t SIM_BATCHES = 10;
 constexpr int DISP_FACTOR = 2;
 
 constexpr int CASTER_SIM_VERSION[3] = {0, 1, 0};
+/* clang-format off */
 constexpr char HELP_MENU[] =
     "Caster simulator usage:\n"
-    " -h, --help       show this help and exit\n"
-    " -V, --version    show the version and exit\n"
-    "     --headless   run without a window\n"
-    " -t, --trace      write a VCD trace to trace.vcd\n"
-    "     --osd        show the OSD test pattern\n"
-    " -q, --quiet      print only errors\n"
-    " -v, --verbose    print more details\n"
-    " -c, --cycles N   stop after N clock cycles\n"
-    " -s, --source SRC input to show, one of: bounce (default),\n"
-    "                  border, bars, bars-flip, flash, images, stdin\n";
+    " -h, --help              show this help and exit\n"
+    " -V, --version           show the version and exit\n"
+    "     --headless          run without a window, needs --cycles\n"
+    " -t, --trace             write a VCD trace to trace.vcd\n"
+    "     --osd               show the OSD test pattern (default: off)\n"
+    " -q, --quiet             print only errors\n"
+    " -v, --verbose           print more details\n"
+    " -c, --cycles <n>        stop after <n> clock cycles (default: never)\n"
+    " -s, --source <source>   input to show (default: box):\n"
+    "                           - box           20x20 texture bouncing around\n"
+    "                           - fixed-border  black border on white\n"
+    "                           - fixed-color   four gray bands\n"
+    "                           - fixed-swap    gray bands swapped every 100 frames\n"
+    "                           - blink         full black and white, alternating\n"
+    "                           - image         test0.jpg, test1.jpg... scaled\n";
+/* clang-format on */
 
 struct SimOptions {
     bool help = false;
@@ -50,6 +57,7 @@ struct SimOptions {
 static SimOptions opt;
 
 int main(int argc, char *argv[]) {
+    /* clang-format off */
     const Option options[] = {
         {'h', "help",     &opt.help},
         {0,   "headless", &opt.headless},
@@ -61,6 +69,7 @@ int main(int argc, char *argv[]) {
         {'c', "cycles",   &opt.cycles},
         {'s', "source",   &opt.source},
     };
+    /* clang-format on */
 
     int argi = parse_options(argc, argv, options, std::size(options));
     if (argi < argc)
