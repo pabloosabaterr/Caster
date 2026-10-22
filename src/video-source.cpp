@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <string_view>
+#include <unordered_map>
 #include "video-source.h"
 #include "log.h"
 #include "panel.h"
@@ -285,31 +286,37 @@ static void source_image() {
     free(scaled);
 }
 
-void srcsim_next_frame(std::string_view source) {
-    if (source == "box") {
-        source_box();
-    } else if (source == "fixed-border") {
-        source_fixed_border();
-    } else if (source == "fixed-color") {
-        source_fixed_color();
-    } else if (source == "fixed-swap") {
-        source_fixed_swap();
-    } else if (source == "blink") {
-        source_blink();
-    } else if (source == "image") {
-        source_image();
-    } else {
+using SourceFn = void (*)();
+
+static const std::unordered_map<std::string_view, SourceFn> SOURCES = {
+    {"box", source_box},
+    {"fixed-border", source_fixed_border},
+    {"fixed-color", source_fixed_color},
+    {"fixed-swap", source_fixed_swap},
+    {"blink", source_blink},
+    {"image", source_image},
+};
+
+static SourceFn current_source = source_box;
+
+void srcsim_set_source(std::string_view source) {
+    auto it = SOURCES.find(source);
+    if (it == SOURCES.end())
         die("Unrecognized source option: %s", source);
-    }
+    current_source = it->second;
 }
 
-void srcsim_reset(std::string_view source) {
+void srcsim_next_frame() {
+    current_source();
+}
+
+void srcsim_reset() {
     x_counter = 0;
     y_counter = 0;
-    srcsim_next_frame(source);
+    srcsim_next_frame();
 }
 
-void srcsim_apply(VideoBus &bus, std::string_view source) {
+void srcsim_apply(VideoBus &bus) {
     bus.vsync = (y_counter == 0) ? 1 : 0;
     bus.valid = 1;
     if (bus.ready) {
@@ -326,7 +333,7 @@ void srcsim_apply(VideoBus &bus, std::string_view source) {
             y_counter++;
             if (y_counter == DISP_HEIGHT) {
                 y_counter = 0;
-                srcsim_next_frame(source);
+                srcsim_next_frame();
             }
         }
     }

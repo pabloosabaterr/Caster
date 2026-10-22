@@ -8,7 +8,6 @@
 
 #include <Vcaster.h>
 #include <cstdint>
-#include <string_view>
 #include "verilated_vcd_c.h"
 
 /* Legacy function required by some platforms/ versions of Verilator */
@@ -32,8 +31,7 @@ struct CoreInputs {
     uint8_t spi_mosi = 1;
 };
 
-Sim::Sim(bool enable_trace, bool show_osd, std::string_view source)
-    : source(source) {
+Sim::Sim(bool enable_trace, bool show_osd) {
     core = new Vcaster;
     Verilated::traceEverOn(true);
     firmware = new Firmware(show_osd);
@@ -59,7 +57,7 @@ void Sim::reset(Display &display) {
     tick(display);
     core->rst = 0;
     dispsim_reset();
-    srcsim_reset(source);
+    srcsim_reset();
     vramsim_reset();
     spisim_reset();
     core->sys_ready = 1;
@@ -104,7 +102,7 @@ void Sim::tick(Display &display) {
     dispsim_apply(display, read_panel_bus(*core));
 
     VideoBus video = read_video_bus(*core);
-    srcsim_apply(video, source);
+    srcsim_apply(video);
 
     VramBus vram = read_vram_bus(*core);
     vramsim_apply(vram);
