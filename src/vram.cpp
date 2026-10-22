@@ -36,15 +36,17 @@ void Vram::apply(VramBus &bus) {
     }
     bus.bi_valid = 1;
     if (bus.bi_ready) {
-        if (watch_word && rdptr == *watch_word) {
+        bool watched = watch_word && rdptr == *watch_word;
+        bus.bi_pixel = vram[rdptr++];
+        if (watched) {
             log_debug("Rd\n");
             print_pixel(bus.bi_pixel & 0xffff);
             print_pixel((bus.bi_pixel >> 16) & 0xffff);
             print_pixel((bus.bi_pixel >> 32) & 0xffff);
             print_pixel((bus.bi_pixel >> 48) & 0xffff);
         }
-        bus.bi_pixel = vram[rdptr++];
     }
+
     if (bus.bo_valid) {
         if (watch_word && wrptr == *watch_word) {
             log_debug("Wr\n");
