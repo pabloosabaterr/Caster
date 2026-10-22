@@ -42,7 +42,9 @@ constexpr char HELP_MENU[] =
     "                           - image         test0.jpg, test1.jpg... scaled\n"
     " -p, --panel <panel>     panel type (default: mono):\n"
     "                           - mono\n"
-    "                           - kaleido3\n";
+    "                           - kaleido3\n"
+    "     --panel-debug       draw Caster's dbg_wvfm_tgt signal instead of the\n"
+    "                         simulated ink, mostly dark (default: off)\n";
 /* clang-format on */
 
 struct SimOptions {
@@ -53,6 +55,7 @@ struct SimOptions {
     bool trace = false;
     bool verbose = false;
     bool quiet = false;
+    bool panel_dbg = false;
     uint64_t cycles = 0;
     std::string_view source = "box";
     std::string_view panel = "mono";
@@ -63,16 +66,17 @@ static SimOptions opt;
 int main(int argc, char *argv[]) {
     /* clang-format off */
     const Option options[] = {
-        {'h', "help",     &opt.help},
-        {0,   "headless", &opt.headless},
-        {'V', "version",  &opt.version},
-        {0,   "osd",      &opt.osd},
-        {'t', "trace",    &opt.trace},
-        {'v', "verbose",  &opt.verbose},
-        {'q', "quiet",    &opt.quiet},
-        {'c', "cycles",   &opt.cycles},
-        {'s', "source",   &opt.source},
-        {'p', "panel",    &opt.panel},
+        {'h', "help",        &opt.help},
+        {0,   "headless",    &opt.headless},
+        {'V', "version",     &opt.version},
+        {0,   "osd",         &opt.osd},
+        {'t', "trace",       &opt.trace},
+        {'v', "verbose",     &opt.verbose},
+        {'q', "quiet",       &opt.quiet},
+        {'c', "cycles",      &opt.cycles},
+        {'s', "source",      &opt.source},
+        {'p', "panel",       &opt.panel},
+        {0,   "panel-debug", &opt.panel_dbg},
     };
     /* clang-format on */
 
@@ -111,7 +115,7 @@ int main(int argc, char *argv[]) {
     Verilated::commandArgs(argc, argv);
 
     Display display(DISP_WIDTH, DISP_HEIGHT, DISP_FACTOR, opt.headless);
-    Sim sim(opt.trace, opt.osd, source_type, panel_type);
+    Sim sim(opt.trace, opt.osd, source_type, panel_type, opt.panel_dbg);
 
     log_info("Simulation start.\n");
     sim.reset(display);

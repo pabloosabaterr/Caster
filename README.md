@@ -90,6 +90,8 @@ Caster simulator usage:
  -p, --panel <panel>     panel type (default: mono):
                            - mono
                            - kaleido3
+     --panel-debug       draw Caster's dbg_wvfm_tgt signal instead of the\n"
+                         simulated ink, mostly dark (default: off)\n"
 ```
 
 Options that take a value also accept `--option=value`, for example

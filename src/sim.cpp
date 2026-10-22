@@ -34,12 +34,13 @@ struct CoreInputs {
 Sim::Sim(bool enable_trace,
          bool show_osd,
          SourceType source_type,
-         PanelType panel_type) {
+         PanelType panel_type,
+         bool dbg) {
     core = new Vcaster;
     Verilated::traceEverOn(true);
     firmware = new Firmware(show_osd);
     video_source = new VideoSource(source_type, panel_type);
-    panel = new Panel(panel_type);
+    panel = new Panel(panel_type, dbg);
     if (enable_trace) {
         trace = new VerilatedVcdC;
         core->trace(trace, 99);

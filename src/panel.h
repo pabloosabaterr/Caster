@@ -33,7 +33,7 @@ inline const std::unordered_map<std::string_view, PanelType> PANEL_TYPES = {
 
 class Panel {
   public:
-    explicit Panel(PanelType type);
+    explicit Panel(PanelType type, bool dbg);
 
     void reset();
     void apply(Display &display, const PanelBus &bus);
@@ -43,6 +43,7 @@ class Panel {
     void render(Display &display);
 
     PanelType type;
+    bool dbg;
 
     uint8_t localbuf[DISP_WIDTH * DISP_HEIGHT];
     int8_t speedbuf[DISP_WIDTH * DISP_HEIGHT];
