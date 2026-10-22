@@ -1,10 +1,9 @@
 #ifndef VIDEO_SOURCE_H
 #define VIDEO_SOURCE_H
 
+#include "panel.h"
 #include <cstdint>
 #include <string_view>
-
-void srcsim_reset();
 
 /* Video input of Caster. */
 struct VideoBus {
@@ -17,7 +16,37 @@ struct VideoBus {
     uint8_t valid = 0;
 };
 
-void srcsim_apply(VideoBus &bus);
-void srcsim_set_source(std::string_view source);
+class VideoSource {
+  public:
+    explicit VideoSource(std::string_view source);
+
+    void reset();
+
+    void apply(VideoBus &bus);
+
+  private:
+    using SourceFn = void (VideoSource::*)();
+
+    void next_frame();
+
+    void source_box();
+    void source_fixed_border();
+    void source_fixed_color();
+    void source_fixed_swap();
+    void source_blink();
+    void source_image();
+
+    SourceFn current_source = &VideoSource::source_box;
+
+    uint8_t pixels[DISP_WIDTH * DISP_HEIGHT];
+    int x_counter = 0;
+    int y_counter = 0;
+    int frame_counter = 0;
+    bool box_loaded = false;
+    uint8_t box_texture[20 * 20];
+    int box_x = 0;
+    int box_y = 0;
+    int box_dir = 0;
+};
 
 #endif

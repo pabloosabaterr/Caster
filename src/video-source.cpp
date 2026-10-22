@@ -11,11 +11,6 @@
 #include "stb_image_resize.h"
 #include "util.h"
 
-static uint8_t pixels[DISP_WIDTH * DISP_HEIGHT];
-static int x_counter;
-static int y_counter;
-static int frame_counter;
-
 void print_buffer(uint8_t *buf, size_t bytes) {
     for (size_t i = 0; i < bytes / 16; i++) {
         for (int j = 0; j < 16; j++) {
@@ -25,7 +20,6 @@ void print_buffer(uint8_t *buf, size_t bytes) {
     }
 }
 
-[[maybe_unused]]
 static uint8_t rgb2y(uint32_t r,
                      uint32_t g,
                      uint32_t b,
@@ -63,69 +57,81 @@ static uint8_t *load_image(const char *fn, int *x, int *y, int *n) {
     return data;
 }
 
-static void source_box() {
-    static int x = 0, y = 0;
-    static int dir = 0;
+VideoSource::VideoSource(std::string_view source) {
+        static const std::unordered_map<std::string_view, SourceFn> SOURCES = {
+        {"box", &VideoSource::source_box},
+        {"fixed-border", &VideoSource::source_fixed_border},
+        {"fixed-color", &VideoSource::source_fixed_color},
+        {"fixed-swap", &VideoSource::source_fixed_swap},
+        {"blink", &VideoSource::source_blink},
+        {"image", &VideoSource::source_image},
+    };
+
+    auto it = SOURCES.find(source);
+    if (it == SOURCES.end())
+        die("Unrecognized source option: %s", source);
+    current_source = it->second;
+}
+
+void VideoSource::source_box() {
     memset(pixels, 0xff, DISP_WIDTH * DISP_HEIGHT);
-    bool xright = (x == DISP_WIDTH - 21);
-    bool ydown = (y == DISP_HEIGHT - 21);
-    bool yup = (y == 0);
-    bool xleft = (x == 0);
-    if (dir == 0) {
+    bool xright = (box_x == DISP_WIDTH - 21);
+    bool ydown = (box_y == DISP_HEIGHT - 21);
+    bool yup = (box_y == 0);
+    bool xleft = (box_x == 0);
+    if (box_dir == 0) {
         // Right down
         if (ydown)
-            dir = 1; // right up
+            box_dir = 1; // right up
         if (xright)
-            dir = 2; // left down
+            box_dir = 2; // left down
         if (ydown && xright)
-            dir = 3;
-    } else if (dir == 1) {
+            box_dir = 3;
+    } else if (box_dir == 1) {
         // Right up
         if (yup)
-            dir = 0; // right down
+            box_dir = 0; // right down
         if (xright)
-            dir = 3; // left up
+            box_dir = 3; // left up
         if (yup && xright)
-            dir = 2;
-    } else if (dir == 2) {
+            box_dir = 2;
+    } else if (box_dir == 2) {
         // Left down
         if (ydown)
-            dir = 3; // left up
+            box_dir = 3; // left up
         if (xleft)
-            dir = 0; // right down
+            box_dir = 0; // right down
         if (ydown && xleft)
-            dir = 1;
-    } else if (dir == 3) {
+            box_dir = 1;
+    } else if (box_dir == 3) {
         // Left up
         if (yup)
-            dir = 2; // left down
+            box_dir = 2; // left down
         if (xleft)
-            dir = 1; // right up
+            box_dir = 1; // right up
         if (yup && xleft)
-            dir = 0;
+            box_dir = 0;
     }
 
-    if (dir == 0) {
+    if (box_dir == 0) {
         // Right down
-        x++;
-        y++;
-    } else if (dir == 1) {
+        box_x++;
+        box_y++;
+    } else if (box_dir == 1) {
         // Right up
-        x++;
-        y--;
-    } else if (dir == 2) {
+        box_x++;
+        box_y--;
+    } else if (box_dir == 2) {
         // Left down
-        x--;
-        y++;
-    } else if (dir == 3) {
+        box_x--;
+        box_y++;
+    } else if (box_dir == 3) {
         // Left up
-        x--;
-        y--;
+        box_x--;
+        box_y--;
     }
 
-    static bool image_loaded = false;
-    static uint8_t image[20 * 20];
-    if (!image_loaded) {
+    if (!box_loaded) {
         int w, h, n;
         uint8_t *data = load_image("texture.jpg", &w, &h, &n);
         log_debug("Input image size %d x %d (%d channels)\n", w, h, n);
@@ -136,31 +142,24 @@ static void source_box() {
                     h);
             exit(EXIT_FAILURE);
         }
-        // uint8_t *scaled = (uint8_t *)calloc(1, 20 * 20 * n);
-        // stbir_resize_uint8(data, x, y, 0, scaled, 20, 20, 0, n);
-        // free(data);
-        // for (int i = 0; i < 20*20; i++) {
-        //     image[i] = scaled[i*n];
-        // }
-        // free(scaled);
 
         for (int i = 0; i < 20 * 20; i++) {
-            image[i] = data[i * n];
+            box_texture[i] = data[i * n];
         }
-        image_loaded = true;
+        box_loaded = true;
         log_info("Image loaded\n");
     }
 
     uint32_t rptr = 0;
-    for (int i = y; i < y + 20; i++) {
-        for (int j = x; j < x + 20; j++) {
-            pixels[i * DISP_WIDTH + j] = image[rptr++];
+    for (int i = box_y; i < box_y + 20; i++) {
+        for (int j = box_x; j < box_x + 20; j++) {
+            pixels[i * DISP_WIDTH + j] = box_texture[rptr++];
         }
     }
     frame_counter++;
 }
 
-static void source_fixed_border() {
+void VideoSource::source_fixed_border() {
     memset(pixels, 0xff, DISP_WIDTH * DISP_HEIGHT);
     for (int i = 0; i < DISP_WIDTH; i++) {
         pixels[i] = 0x00;
@@ -172,7 +171,7 @@ static void source_fixed_border() {
     }
 }
 
-static void source_fixed_color() {
+void VideoSource::source_fixed_color() {
     memset(pixels, 0x00, DISP_WIDTH * DISP_HEIGHT / 4);
     memset(pixels + DISP_WIDTH * DISP_HEIGHT / 4,
            0x55,
@@ -186,7 +185,7 @@ static void source_fixed_color() {
 }
 
 /* Full screen fixed color, reverse, 200 frames later */
-static void source_fixed_swap() {
+void VideoSource::source_fixed_swap() {
     uint8_t colors[4];
     if (frame_counter < 100) {
         colors[0] = 0x00;
@@ -214,7 +213,7 @@ static void source_fixed_swap() {
         frame_counter = 0;
 }
 
-static void source_blink() {
+void VideoSource::source_blink() {
     if (frame_counter) {
         memset(pixels, 0x00, DISP_WIDTH * DISP_HEIGHT);
         frame_counter = 0;
@@ -224,7 +223,7 @@ static void source_blink() {
     }
 }
 
-static void source_image() {
+ void VideoSource::source_image() {
     if ((frame_counter % 100) != 0) {
         frame_counter++;
         if (frame_counter == 400)
@@ -286,37 +285,17 @@ static void source_image() {
     free(scaled);
 }
 
-using SourceFn = void (*)();
-
-static const std::unordered_map<std::string_view, SourceFn> SOURCES = {
-    {"box", source_box},
-    {"fixed-border", source_fixed_border},
-    {"fixed-color", source_fixed_color},
-    {"fixed-swap", source_fixed_swap},
-    {"blink", source_blink},
-    {"image", source_image},
-};
-
-static SourceFn current_source = source_box;
-
-void srcsim_set_source(std::string_view source) {
-    auto it = SOURCES.find(source);
-    if (it == SOURCES.end())
-        die("Unrecognized source option: %s", source);
-    current_source = it->second;
+void VideoSource::next_frame() {
+    (this->*current_source)();
 }
 
-void srcsim_next_frame() {
-    current_source();
-}
-
-void srcsim_reset() {
+void VideoSource::reset() {
     x_counter = 0;
     y_counter = 0;
-    srcsim_next_frame();
+    next_frame();
 }
 
-void srcsim_apply(VideoBus &bus) {
+void VideoSource::apply(VideoBus &bus) {
     bus.vsync = (y_counter == 0) ? 1 : 0;
     bus.valid = 1;
     if (bus.ready) {
@@ -333,7 +312,7 @@ void srcsim_apply(VideoBus &bus) {
             y_counter++;
             if (y_counter == DISP_HEIGHT) {
                 y_counter = 0;
-                srcsim_next_frame();
+                next_frame();
             }
         }
     }
