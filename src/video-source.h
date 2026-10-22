@@ -18,16 +18,16 @@ struct VideoBus {
 
 class VideoSource {
   public:
-    explicit VideoSource(std::string_view source);
+    explicit VideoSource(std::string_view source, PanelType panel);
 
     void reset();
-
     void apply(VideoBus &bus);
 
   private:
     using SourceFn = void (VideoSource::*)();
 
     void next_frame();
+    uint8_t rgb2y(uint32_t r, uint32_t g, uint32_t b, int x, int y);
 
     void source_box();
     void source_fixed_border();
@@ -47,6 +47,7 @@ class VideoSource {
     int box_x = 0;
     int box_y = 0;
     int box_dir = 0;
+    PanelType panel;
 };
 
 #endif

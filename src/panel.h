@@ -1,16 +1,14 @@
-#pragma once
+#ifndef PANEL_H
+#define PANEL_H
 
 #include <cstdint>
-
-/* #define K3 */
-#define MONO
+#include <string_view>
+#include <unordered_map>
 
 class Display;
 
 constexpr int DISP_WIDTH = 320;
 constexpr int DISP_HEIGHT = 240;
-
-void dispsim_reset();
 
 struct PanelBus {
     uint8_t gdoe = 0;
@@ -23,4 +21,39 @@ struct PanelBus {
     uint16_t dbg_wvfm_tgt = 0;
 };
 
-void dispsim_apply(Display &display, const PanelBus &bus);
+enum class PanelType {
+    MONOCHROME,
+    KALEIDO3,
+};
+
+inline const std::unordered_map<std::string_view, PanelType> PANEL_TYPES = {
+    {"mono", PanelType::MONOCHROME},
+    {"kaleido3", PanelType::KALEIDO3},
+};
+
+class Panel {
+  public:
+    explicit Panel(PanelType type);
+
+    void reset();
+    void apply(Display &display, const PanelBus &bus);
+
+  private:
+    void set_pixel(uint32_t *pixels, int x, int y, uint8_t input);
+    void render(Display &display);
+
+    PanelType type;
+
+    uint8_t localbuf[DISP_WIDTH * DISP_HEIGHT];
+    int8_t speedbuf[DISP_WIDTH * DISP_HEIGHT];
+
+    int x_counter = 0;
+    int y_counter = 0;
+    int last_hs = 0;
+    bool line_valid = false;
+
+    float time_delta = 0.0f;
+    uint32_t last_ticks = 0;
+};
+
+#endif

@@ -32,11 +32,15 @@ struct CoreInputs {
     uint8_t spi_mosi = 1;
 };
 
-Sim::Sim(bool enable_trace, bool show_osd, std::string_view source) {
+Sim::Sim(bool enable_trace,
+         bool show_osd,
+         std::string_view source,
+         PanelType panel_type) {
     core = new Vcaster;
     Verilated::traceEverOn(true);
     firmware = new Firmware(show_osd);
-    video_source = new VideoSource(source);
+    video_source = new VideoSource(source, panel_type);
+    panel = new Panel(panel_type);
     if (enable_trace) {
         trace = new VerilatedVcdC;
         core->trace(trace, 99);
@@ -51,6 +55,8 @@ Sim::~Sim() {
     }
     delete core;
     delete firmware;
+    delete video_source;
+    delete panel;
 }
 
 void Sim::reset(Display &display) {
@@ -58,7 +64,7 @@ void Sim::reset(Display &display) {
     tick(display);
     tick(display);
     core->rst = 0;
-    dispsim_reset();
+    panel->reset();
     video_source->reset();
     vramsim_reset();
     spisim_reset();
@@ -101,7 +107,7 @@ static SpiBus read_spi_bus(const Vcaster &core) {
 
 void Sim::tick(Display &display) {
     /* Call simulated modules */
-    dispsim_apply(display, read_panel_bus(*core));
+    panel->apply(display, read_panel_bus(*core));
 
     VideoBus video = read_video_bus(*core);
     video_source->apply(video);
