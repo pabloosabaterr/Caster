@@ -2,13 +2,11 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include <string_view>
 #include "video-source.h"
 #include "log.h"
 #include "panel.h"
 #include "stb_image.h"
 #include "stb_image_resize.h"
-#include "util.h"
 
 void print_buffer(uint8_t *buf, size_t bytes) {
     for (size_t i = 0; i < bytes / 16; i++) {
@@ -54,21 +52,8 @@ static uint8_t *load_image(const char *fn, int *x, int *y, int *n) {
     return data;
 }
 
-VideoSource::VideoSource(std::string_view source, PanelType panel)
-    : panel(panel) {
-    static const std::unordered_map<std::string_view, SourceFn> SOURCES = {
-        {"box", &VideoSource::source_box},
-        {"fixed-border", &VideoSource::source_fixed_border},
-        {"fixed-color", &VideoSource::source_fixed_color},
-        {"fixed-swap", &VideoSource::source_fixed_swap},
-        {"blink", &VideoSource::source_blink},
-        {"image", &VideoSource::source_image},
-    };
-
-    auto it = SOURCES.find(source);
-    if (it == SOURCES.end())
-        die("Unrecognized source option: %s", source);
-    current_source = it->second;
+VideoSource::VideoSource(SourceType source, PanelType panel)
+    : panel(panel), source(source) {
 }
 
 void VideoSource::source_box() {
@@ -284,7 +269,26 @@ void VideoSource::source_image() {
 }
 
 void VideoSource::next_frame() {
-    (this->*current_source)();
+    switch (source) {
+    case SourceType::BOX:
+        source_box();
+        break;
+    case SourceType::FIXED_BORDER:
+        source_fixed_border();
+        break;
+    case SourceType::FIXED_COLOR:
+        source_fixed_color();
+        break;
+    case SourceType::FIXED_SWAP:
+        source_fixed_swap();
+        break;
+    case SourceType::BLINK:
+        source_blink();
+        break;
+    case SourceType::IMAGE:
+        source_image();
+        break;
+    }
 }
 
 void VideoSource::reset() {

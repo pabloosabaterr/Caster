@@ -4,7 +4,6 @@
 #include "panel.h"
 #include "video-source.h"
 #include <cstdint>
-#include <string_view>
 
 class Vcaster;
 class VerilatedVcdC;
@@ -17,7 +16,7 @@ class Sim {
   public:
     explicit Sim(bool enable_trace,
                  bool show_osd,
-                 std::string_view source,
+                 SourceType source,
                  PanelType panel);
     ~Sim();
 

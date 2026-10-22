@@ -4,6 +4,25 @@
 #include "panel.h"
 #include <cstdint>
 #include <string_view>
+#include <unordered_map>
+
+enum class SourceType {
+    BOX,
+    FIXED_BORDER,
+    FIXED_COLOR,
+    FIXED_SWAP,
+    BLINK,
+    IMAGE,
+};
+
+inline const std::unordered_map<std::string_view, SourceType> SOURCE_TYPES = {
+    {"box", SourceType::BOX},
+    {"fixed-border", SourceType::FIXED_BORDER},
+    {"fixed-color", SourceType::FIXED_COLOR},
+    {"fixed-swap", SourceType::FIXED_SWAP},
+    {"blink", SourceType::BLINK},
+    {"image", SourceType::IMAGE},
+};
 
 /* Video input of Caster. */
 struct VideoBus {
@@ -18,14 +37,12 @@ struct VideoBus {
 
 class VideoSource {
   public:
-    explicit VideoSource(std::string_view source, PanelType panel);
+    explicit VideoSource(SourceType source, PanelType panel);
 
     void reset();
     void apply(VideoBus &bus);
 
   private:
-    using SourceFn = void (VideoSource::*)();
-
     void next_frame();
     uint8_t rgb2y(uint32_t r, uint32_t g, uint32_t b, int x, int y);
 
@@ -35,8 +52,6 @@ class VideoSource {
     void source_fixed_swap();
     void source_blink();
     void source_image();
-
-    SourceFn current_source = &VideoSource::source_box;
 
     uint8_t pixels[DISP_WIDTH * DISP_HEIGHT];
     int x_counter = 0;
@@ -48,6 +63,7 @@ class VideoSource {
     int box_y = 0;
     int box_dir = 0;
     PanelType panel;
+    SourceType source;
 };
 
 #endif
