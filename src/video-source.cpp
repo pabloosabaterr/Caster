@@ -36,9 +36,8 @@ uint8_t VideoSource::rgb2y(uint32_t r, uint32_t g, uint32_t b, int x, int y) {
         uint32_t yy = r + g + b;
         return (yy >> 8);
     }
-    default:
-        die("unknown panel type");
     }
+    die("unknown panel type");
 }
 
 // Wrapper around stbi_load() to prevent segfault when there's no image
