@@ -91,12 +91,10 @@ int main(int argc, char *argv[]) {
     if (opt.headless && !opt.cycles)
         die("--headless needs --cycles, it would never stop");
 
-    srcsim_set_source(opt.source);
-
     Verilated::commandArgs(argc, argv);
 
     Display display(DISP_WIDTH, DISP_HEIGHT, DISP_FACTOR, opt.headless);
-    Sim sim(opt.trace, opt.osd);
+    Sim sim(opt.trace, opt.osd, opt.source);
 
     log_info("Simulation start.\n");
     sim.reset(display);
