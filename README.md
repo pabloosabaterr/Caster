@@ -90,10 +90,10 @@ Caster simulator usage:
  -p, --panel <panel>     panel type (default: mono):
                            - mono
                            - kaleido3
-     --panel-debug       draw Caster's dbg_wvfm_tgt signal instead of the"
-                         simulated ink, mostly dark (default: off)"
-     --watch-x <x>       with --watch-y, print the VRAM state of the pixel"
-     --watch-y <y>       at x,y every time Caster reads or writes it";
+     --panel-debug       draw Caster's dbg_wvfm_tgt signal instead of the
+                         simulated ink, mostly dark (default: off)
+     --watch-x <x>       with --watch-y, print the VRAM state of the pixel
+     --watch-y <y>       at x,y every time Caster reads or writes it
 ```
 
 Options that take a value also accept `--option=value`, for example
