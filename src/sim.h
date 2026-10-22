@@ -4,12 +4,15 @@
 #include "panel.h"
 #include "video-source.h"
 #include <cstdint>
+#include <optional>
+#include <utility>
 
 class Vcaster;
 class VerilatedVcdC;
 class Display;
 class Firmware;
 class VideoSource;
+class Vram;
 
 /* The Caster core, its trace and the clock that drives it. */
 class Sim {
@@ -18,6 +21,7 @@ class Sim {
                  bool show_osd,
                  SourceType source,
                  PanelType panel,
+                 std::optional<std::pair<uint64_t, uint64_t>> watch,
                  bool dbg);
     ~Sim();
 
@@ -36,6 +40,7 @@ class Sim {
     Firmware *firmware = nullptr;
     VideoSource *video_source = nullptr;
     Panel *panel = nullptr;
+    Vram *vram = nullptr;
     uint64_t tickcount = 0;
     VerilatedVcdC *trace = nullptr;
 };

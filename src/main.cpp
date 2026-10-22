@@ -2,7 +2,9 @@
 #include <cstdio>
 
 #include <SDL.h>
+#include <optional>
 #include <string_view>
+#include <utility>
 
 #include "verilated.h"
 
@@ -44,7 +46,10 @@ constexpr char HELP_MENU[] =
     "                           - mono\n"
     "                           - kaleido3\n"
     "     --panel-debug       draw Caster's dbg_wvfm_tgt signal instead of the\n"
-    "                         simulated ink, mostly dark (default: off)\n";
+    "                         simulated ink, mostly dark (default: off)\n"
+/* TODO: add new option that can handle multiple args: --watch x,y */
+    "     --watch-x <x>       with --watch-y, print the VRAM state of the pixel\n"
+    "     --watch-y <y>       at x,y every time Caster reads or writes it\n";
 /* clang-format on */
 
 struct SimOptions {
@@ -57,6 +62,8 @@ struct SimOptions {
     bool quiet = false;
     bool panel_dbg = false;
     uint64_t cycles = 0;
+    uint64_t watch_x = UINT64_MAX;
+    uint64_t watch_y = UINT64_MAX;
     std::string_view source = "box";
     std::string_view panel = "mono";
 };
@@ -77,6 +84,8 @@ int main(int argc, char *argv[]) {
         {'s', "source",      &opt.source},
         {'p', "panel",       &opt.panel},
         {0,   "panel-debug", &opt.panel_dbg},
+        {0,   "watch-x",     &opt.watch_x},
+        {0,   "watch-y",     &opt.watch_y},
     };
     /* clang-format on */
 
@@ -111,11 +120,17 @@ int main(int argc, char *argv[]) {
 
     PanelType panel_type = parse_choice("panel", opt.panel, PANEL_TYPES);
     SourceType source_type = parse_choice("source", opt.source, SOURCE_TYPES);
+    std::optional<std::pair<uint64_t, uint64_t>> watch;
+    if ((opt.watch_x == UINT64_MAX) != (opt.watch_y == UINT64_MAX))
+        die("--watch-x and --watch-y must be used together");
+
+    if (opt.watch_x != UINT64_MAX)
+        watch = {opt.watch_x, opt.watch_y};
 
     Verilated::commandArgs(argc, argv);
 
     Display display(DISP_WIDTH, DISP_HEIGHT, DISP_FACTOR, opt.headless);
-    Sim sim(opt.trace, opt.osd, source_type, panel_type, opt.panel_dbg);
+    Sim sim(opt.trace, opt.osd, source_type, panel_type, watch, opt.panel_dbg);
 
     log_info("Simulation start.\n");
     sim.reset(display);

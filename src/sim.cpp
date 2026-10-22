@@ -8,6 +8,8 @@
 
 #include <Vcaster.h>
 #include <cstdint>
+#include <optional>
+#include <utility>
 #include "verilated_vcd_c.h"
 
 /* Legacy function required by some platforms/ versions of Verilator */
@@ -35,12 +37,14 @@ Sim::Sim(bool enable_trace,
          bool show_osd,
          SourceType source_type,
          PanelType panel_type,
+         std::optional<std::pair<uint64_t, uint64_t>> watch,
          bool dbg) {
     core = new Vcaster;
     Verilated::traceEverOn(true);
     firmware = new Firmware(show_osd);
     video_source = new VideoSource(source_type, panel_type);
     panel = new Panel(panel_type, dbg);
+    vram = new Vram(watch);
     if (enable_trace) {
         trace = new VerilatedVcdC;
         core->trace(trace, 99);
@@ -57,6 +61,7 @@ Sim::~Sim() {
     delete firmware;
     delete video_source;
     delete panel;
+    delete vram;
 }
 
 void Sim::reset(Display &display) {
@@ -66,7 +71,7 @@ void Sim::reset(Display &display) {
     core->rst = 0;
     panel->reset();
     video_source->reset();
-    vramsim_reset();
+    vram->reset();
     spisim_reset();
     core->sys_ready = 1;
 }
@@ -112,8 +117,8 @@ void Sim::tick(Display &display) {
     VideoBus video = read_video_bus(*core);
     video_source->apply(video);
 
-    VramBus vram = read_vram_bus(*core);
-    vramsim_apply(vram);
+    VramBus vram_bus = read_vram_bus(*core);
+    vram->apply(vram_bus);
 
     SpiBus spi = read_spi_bus(*core);
     spisim_apply(spi);
@@ -126,8 +131,8 @@ void Sim::tick(Display &display) {
     core->vin_vsync = video.vsync;
     core->vin_pixel = video.pixel;
     core->vin_valid = video.valid;
-    core->bi_pixel = vram.bi_pixel;
-    core->bi_valid = vram.bi_valid;
+    core->bi_pixel = vram_bus.bi_pixel;
+    core->bi_valid = vram_bus.bi_valid;
     core->spi_cs = spi.cs;
     core->spi_sck = spi.sck;
     core->spi_mosi = spi.mosi;
