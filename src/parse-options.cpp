@@ -67,27 +67,19 @@ int parse_options(int argc, char **argv, const Option *options, size_t n) {
         if (!found)
             die("unknown option '%s'", argv[i]);
 
-        switch (found->type) {
-        case Option_type::BOOL:
-            if (value)
-                die("option '%s' takes no value", argv[i]);
-            *static_cast<bool *>(found->val) = true;
-            break;
-
-        case Option_type::U64: {
-            const char *opt_name = argv[i];
-
-            if (!value) {
-                if (i + 1 >= argc)
-                    die("option '%s' needs a number", opt_name);
-                value = argv[++i];
-            }
-
-            if (!parse_u64(value, static_cast<uint64_t *>(found->val)))
-                die("invalid number '%s' for '%s'", value, opt_name);
-            break;
-        }
-        }
+        std::visit(
+            overloaded{
+                [&](bool *p) {
+                    if (value)
+                        die("option '%s' takes no value", argv[i]);
+                    *p = true;
+                },
+                [&](uint64_t *p) {
+                    if (!parse_u64(value, p))
+                        die("invalid number '%s' for '%s'", value, argv[i]);
+                },
+            },
+            found->val);
     }
 
     return i;
