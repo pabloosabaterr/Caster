@@ -43,7 +43,7 @@ struct SimOptions {
     bool verbose = false;
     bool quiet = false;
     uint64_t cycles = 0;
-    std::string_view source;
+    std::string_view source = "box";
 };
 
 static SimOptions opt;
@@ -93,7 +93,7 @@ int main(int argc, char *argv[]) {
     Verilated::commandArgs(argc, argv);
 
     Display display(DISP_WIDTH, DISP_HEIGHT, DISP_FACTOR, opt.headless);
-    Sim sim(opt.trace, opt.osd);
+    Sim sim(opt.trace, opt.osd, opt.source);
 
     log_info("Simulation start.\n");
     sim.reset(display);

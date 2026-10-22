@@ -2,8 +2,9 @@
 #define VIDEO_SOURCE_H
 
 #include <cstdint>
+#include <string_view>
 
-void srcsim_reset();
+void srcsim_reset(std::string_view source);
 
 /* Video input of Caster. */
 struct VideoBus {
@@ -16,6 +17,6 @@ struct VideoBus {
     uint8_t valid = 0;
 };
 
-void srcsim_apply(VideoBus &bus);
+void srcsim_apply(VideoBus &bus, std::string_view source);
 
 #endif
