@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <string_view>
 
-void srcsim_reset(std::string_view source);
+void srcsim_reset();
 
 /* Video input of Caster. */
 struct VideoBus {
@@ -17,6 +17,7 @@ struct VideoBus {
     uint8_t valid = 0;
 };
 
-void srcsim_apply(VideoBus &bus, std::string_view source);
+void srcsim_apply(VideoBus &bus);
+void srcsim_set_source(std::string_view source);
 
 #endif

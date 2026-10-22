@@ -12,7 +12,7 @@ class Firmware;
 /* The Caster core, its trace and the clock that drives it. */
 class Sim {
   public:
-    explicit Sim(bool enable_trace, bool show_osd, std::string_view source);
+    explicit Sim(bool enable_trace, bool show_osd);
     ~Sim();
 
     /* Hold the core in reset and reset every model. */
@@ -30,7 +30,6 @@ class Sim {
     Firmware *firmware = nullptr;
     uint64_t tickcount = 0;
     VerilatedVcdC *trace = nullptr;
-    std::string_view source;
 };
 
 #endif

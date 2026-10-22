@@ -12,6 +12,7 @@
 #include "sim.h"
 #include "util.h"
 #include "log.h"
+#include "video-source.h"
 
 /* Cycles simulated between window title updates */
 constexpr uint32_t SIM_STEP = 100000;
@@ -90,10 +91,12 @@ int main(int argc, char *argv[]) {
     if (opt.headless && !opt.cycles)
         die("--headless needs --cycles, it would never stop");
 
+    srcsim_set_source(opt.source);
+
     Verilated::commandArgs(argc, argv);
 
     Display display(DISP_WIDTH, DISP_HEIGHT, DISP_FACTOR, opt.headless);
-    Sim sim(opt.trace, opt.osd, opt.source);
+    Sim sim(opt.trace, opt.osd);
 
     log_info("Simulation start.\n");
     sim.reset(display);
