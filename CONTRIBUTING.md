@@ -44,11 +44,3 @@ The rules for the code itself are in
 The RTL comes from the `caster` submodule and is shared with the real
 hardware. Do not change it here. Propose RTL changes as merge requests to
 [Caster](https://gitlab.com/zephray/caster).
-
-## Known issues
-
-[KNOWN_ISSUES.md](KNOWN_ISSUES.md) lists the problems found in the simulator.
-Issues are never removed from the list. When you fix one, check it off in the
-same commit as the fix.
-
-This list is temporary. Eventually it will be replaced by GitHub issues.

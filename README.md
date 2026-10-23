@@ -112,8 +112,6 @@ Options that take a value also accept `--option=value`, for example
 The `sim/` folder inside the `caster` submodule is the old copy of this
 simulator and is not used.
 
-Issues found so far are tracked in [KNOWN_ISSUES](KNOWN_ISSUES.md).
-
 A main roadmap has not yet been done.
 
 ## License
