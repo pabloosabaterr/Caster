@@ -42,7 +42,7 @@ Follow these rules in new code.
 | Functions, variables, members | snake_case | `srcsim_apply`, `frame_counter` |
 | Constants and macros | UPPER_CASE | `DISP_WIDTH`, `SIM_STEP` |
 | Files and directories | kebab-case | `disp-sim.cpp`, `third-party/` |
-| Markdown documents | UPPER_SNAKE_CASE | `KNOWN_ISSUES.md` |
+| Markdown documents | UPPER_SNAKE_CASE | `CODING_GUIDELINES` |
 
 When declaring a variable, do not repeat `struct`: write `CoreInputs inputs;`,
 not `struct CoreInputs inputs;`.
