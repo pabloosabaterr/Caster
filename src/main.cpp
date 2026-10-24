@@ -20,8 +20,9 @@
 constexpr uint32_t SIM_STEP = 100000;
 /* Window events are checked this many times per SIM_STEP */
 constexpr uint32_t SIM_BATCHES = 10;
-/* Window size relative to the panel */
-constexpr int DISP_FACTOR = 2;
+
+constexpr int WIN_WIDTH = 640;
+constexpr int WIN_HEIGHT = 480;
 
 constexpr int CASTER_SIM_VERSION[3] = {0, 1, 0};
 /* clang-format off */
@@ -137,7 +138,8 @@ int main(int argc, char *argv[]) {
 
     Verilated::commandArgs(argc, argv);
 
-    Display display(DISP_WIDTH, DISP_HEIGHT, DISP_FACTOR, opt.headless);
+    Display display(
+        DISP_WIDTH, DISP_HEIGHT, WIN_WIDTH, WIN_HEIGHT, opt.headless);
     Sim sim({
         .enable_trace = opt.trace,
         .show_osd = opt.osd,

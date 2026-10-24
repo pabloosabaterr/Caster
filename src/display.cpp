@@ -1,13 +1,13 @@
 #include <SDL.h>
 #include <cstdint>
-#include <cstdio>
 #include <cstdlib>
 #include <cstring>
 
 #include "display.h"
 #include "util.h"
 
-Display::Display(int width, int height, int scale, bool headless)
+Display::Display(
+    int width, int height, int win_width, int win_height, bool headless)
     : width(width), height(height), headless(headless) {
     screen = SDL_CreateRGBSurface(SDL_SWSURFACE,
                                   width,
@@ -26,18 +26,22 @@ Display::Display(int width, int height, int scale, bool headless)
     if (headless)
         return;
 
+    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0");
+
     window = SDL_CreateWindow("Caster",
                               SDL_WINDOWPOS_UNDEFINED,
                               SDL_WINDOWPOS_UNDEFINED,
-                              width * scale,
-                              height * scale,
-                              SDL_SWSURFACE);
+                              win_width,
+                              win_height,
+                              SDL_WINDOW_ALLOW_HIGHDPI);
     if (!window)
         die("cannot create window: %s", SDL_GetError());
 
     uint32_t flags = SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC;
     if (!(renderer = SDL_CreateRenderer(window, -1, flags)))
         die("cannot create renderer: %s", SDL_GetError());
+
+    SDL_RenderSetLogicalSize(renderer, width, height);
 
     texture = SDL_CreateTexture(renderer,
                                 SDL_PIXELFORMAT_ARGB8888,
@@ -46,8 +50,6 @@ Display::Display(int width, int height, int scale, bool headless)
                                 height);
     if (!texture)
         die("cannot create texture: %s", SDL_GetError());
-
-    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0");
 }
 
 Display::~Display() {

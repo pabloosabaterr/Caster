@@ -11,7 +11,8 @@ struct SDL_Surface;
 /* The SDL window where the simulated panel is shown. */
 class Display {
   public:
-    Display(int width, int height, int scale, bool headless);
+    Display(
+        int width, int height, int win_width, int win_height, bool headless);
     ~Display();
 
     /* Framebuffer the panel model draws into, one ARGB pixel per element. */
