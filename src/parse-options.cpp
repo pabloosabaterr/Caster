@@ -12,20 +12,6 @@
 static constexpr size_t LONG_PREFIX_SIZE = 2;
 static constexpr size_t SHORT_PREFIX_SIZE = 1;
 
-static bool parse_u64(const char *s, uint64_t *out) {
-    if (!isdigit(static_cast<unsigned char>(*s)))
-        return false;
-
-    char *end;
-    errno = 0;
-    unsigned long long v = strtoull(s, &end, 10);
-    if (errno || *end != '\0')
-        return false;
-
-    *out = v;
-    return true;
-}
-
 int parse_options(int argc, char **argv, const Option *options, size_t n) {
     int i;
 
