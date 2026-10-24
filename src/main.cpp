@@ -49,7 +49,8 @@ constexpr char HELP_MENU[] =
     "                         simulated ink, mostly dark (default: off)\n"
 /* TODO: add new option that can handle multiple args: --watch x,y */
     "     --watch-x <x>       with --watch-y, print the VRAM state of the pixel\n"
-    "     --watch-y <y>       at x,y every time Caster reads or writes it\n";
+    "     --watch-y <y>       at x,y every time Caster reads or writes it\n"
+    "     --digest            print a hash of the panel and VRAM output per frame\n";
 /* clang-format on */
 
 struct SimOptions {
@@ -61,6 +62,7 @@ struct SimOptions {
     bool verbose = false;
     bool quiet = false;
     bool panel_dbg = false;
+    bool digest = false;
     uint64_t cycles = 0;
     uint64_t watch_x = UINT64_MAX;
     uint64_t watch_y = UINT64_MAX;
@@ -86,6 +88,7 @@ int main(int argc, char *argv[]) {
         {0,   "panel-debug", &opt.panel_dbg},
         {0,   "watch-x",     &opt.watch_x},
         {0,   "watch-y",     &opt.watch_y},
+        {0,   "digest",      &opt.digest},
     };
     /* clang-format on */
 
@@ -124,13 +127,26 @@ int main(int argc, char *argv[]) {
     if ((opt.watch_x == UINT64_MAX) != (opt.watch_y == UINT64_MAX))
         die("--watch-x and --watch-y must be used together");
 
-    if (opt.watch_x != UINT64_MAX)
+    if (opt.watch_x != UINT64_MAX) {
+        if (opt.watch_x >= DISP_WIDTH || opt.watch_y >= DISP_HEIGHT)
+            die("--watch-x and --watch-y must be inside the %dx%d panel",
+                DISP_WIDTH,
+                DISP_HEIGHT);
         watch = {opt.watch_x, opt.watch_y};
+    }
 
     Verilated::commandArgs(argc, argv);
 
     Display display(DISP_WIDTH, DISP_HEIGHT, DISP_FACTOR, opt.headless);
-    Sim sim(opt.trace, opt.osd, source_type, panel_type, watch, opt.panel_dbg);
+    Sim sim({
+        .enable_trace = opt.trace,
+        .show_osd = opt.osd,
+        .source_type = source_type,
+        .panel_type = panel_type,
+        .watch = watch,
+        .panel_debug = opt.panel_dbg,
+        .digest = opt.digest,
+    });
 
     log_info("Simulation start.\n");
     sim.reset(display);
@@ -161,6 +177,7 @@ int main(int argc, char *argv[]) {
         ms_tick = SDL_GetTicks();
     }
 
+    sim.finish_digest();
     log_info("Stop.\n");
 
     return 0;

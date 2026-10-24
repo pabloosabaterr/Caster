@@ -33,19 +33,16 @@ struct CoreInputs {
     uint8_t spi_mosi = 1;
 };
 
-Sim::Sim(bool enable_trace,
-         bool show_osd,
-         SourceType source_type,
-         PanelType panel_type,
-         std::optional<std::pair<uint64_t, uint64_t>> watch,
-         bool dbg) {
+Sim::Sim(const Config &config) {
     core = new Vcaster;
     Verilated::traceEverOn(true);
-    firmware = new Firmware(show_osd);
-    video_source = new VideoSource(source_type, panel_type);
-    panel = new Panel(panel_type, dbg);
-    vram = new Vram(watch);
-    if (enable_trace) {
+    firmware = new Firmware(config.show_osd);
+    video_source = new VideoSource(config.source_type, config.panel_type);
+    panel = new Panel(config.panel_type, config.panel_debug);
+    vram = new Vram(config.watch);
+    if (config.digest)
+        digest.emplace();
+    if (config.enable_trace) {
         trace = new VerilatedVcdC;
         core->trace(trace, 99);
         trace->open("trace.vcd");
@@ -112,13 +109,17 @@ static SpiBus read_spi_bus(const Vcaster &core) {
 
 void Sim::tick(Display &display) {
     /* Call simulated modules */
-    panel->apply(display, read_panel_bus(*core));
+    PanelBus panel_bus = read_panel_bus(*core);
+    panel->apply(display, panel_bus);
 
     VideoBus video = read_video_bus(*core);
     video_source->apply(video);
 
     VramBus vram_bus = read_vram_bus(*core);
     vram->apply(vram_bus);
+
+    if (digest)
+        digest->apply(panel_bus, vram_bus, tickcount);
 
     SpiBus spi = read_spi_bus(*core);
     spisim_apply(spi);
@@ -151,4 +152,9 @@ void Sim::tick(Display &display) {
     tickcount++;
 
     firmware->tick();
+}
+
+void Sim::finish_digest() {
+    if (digest)
+        digest->finish();
 }

@@ -6,6 +6,7 @@
 #include <utility>
 #include "vram.h"
 #include "log.h"
+#include "util.h"
 
 Vram::Vram(std::optional<std::pair<uint64_t, uint64_t>> watch) {
     if (watch) {
@@ -36,16 +37,22 @@ void Vram::apply(VramBus &bus) {
     }
     bus.bi_valid = 1;
     if (bus.bi_ready) {
-        if (watch_word && rdptr == *watch_word) {
+        if (rdptr >= VRAM_SIZE)
+            die("VRAM read past the end (word %zu)", rdptr);
+        bool watched = watch_word && rdptr == *watch_word;
+        bus.bi_pixel = vram[rdptr++];
+        if (watched) {
             log_debug("Rd\n");
             print_pixel(bus.bi_pixel & 0xffff);
             print_pixel((bus.bi_pixel >> 16) & 0xffff);
             print_pixel((bus.bi_pixel >> 32) & 0xffff);
             print_pixel((bus.bi_pixel >> 48) & 0xffff);
         }
-        bus.bi_pixel = vram[rdptr++];
     }
+
     if (bus.bo_valid) {
+        if (wrptr >= VRAM_SIZE)
+            die("VRAM write past the end (word %zu)", wrptr);
         if (watch_word && wrptr == *watch_word) {
             log_debug("Wr\n");
             print_pixel(bus.bo_pixel & 0xffff);
