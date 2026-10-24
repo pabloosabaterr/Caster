@@ -35,7 +35,7 @@ VFLAGS := -Wall -Wno-fatal -MMD --trace -cc \
 LIBS := -lm $(shell $(SDL_CONFIG) --libs)
 
 CXXFLAGS := $(shell $(SDL_CONFIG) --cflags) \
-            -Wall -std=c++20 -MMD -MP
+            -Wall -O3 -std=c++20 -MMD -MP
 
 ifeq ($(DEVELOPER),1)
 DEVFLAGS := -Wextra -Wpedantic -Werror
@@ -82,7 +82,7 @@ $(RTLOBJ): $(VSTAMP)
 	@echo "RTL $(notdir $@)"
 	@$(MAKE) --no-print-directory -s \
 		$(if $(findstring jobserver,$(MAKEFLAGS)),,-j$(CPUS)) \
-		-C $(RTLOBJDIR) -f $(VTOP).mk
+		-C $(RTLOBJDIR) -f $(VTOP).mk OPT_FAST="-O3"
 
 # Testbench sources need Vcaster.h on the first build. Afterwards, the
 # generated -MMD dependency files handle the dependencies.

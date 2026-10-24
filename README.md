@@ -70,7 +70,7 @@ make
 ./build/sim {[options] | [verilator-args]}
 ```
 
-```txt
+```
 Caster simulator usage:
  -h, --help              show this help and exit
  -V, --version           show the version and exit
@@ -86,7 +86,8 @@ Caster simulator usage:
                            - fixed-color   four gray bands
                            - fixed-swap    gray bands swapped every 100 frames
                            - blink         full black and white, alternating
-                           - image         test0.jpg, test1.jpg... scaled
+                           - image         swaps between test0.jpg and
+                                           test1.jpg scaled
  -p, --panel <panel>     panel type (default: mono):
                            - mono
                            - kaleido3
@@ -95,6 +96,9 @@ Caster simulator usage:
      --watch-x <x>       with --watch-y, print the VRAM state of the pixel
      --watch-y <y>       at x,y every time Caster reads or writes it
      --digest            print a hash of the panel and VRAM output per frame
+ -r, --resolution <w>x<h>
+                         panel resolution, the width a multiple of 4
+                         (default: 320x240)
 ```
 
 Options that take a value also accept `--option=value`, for example
