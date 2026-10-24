@@ -33,19 +33,14 @@ struct CoreInputs {
     uint8_t spi_mosi = 1;
 };
 
-Sim::Sim(bool enable_trace,
-         bool show_osd,
-         SourceType source_type,
-         PanelType panel_type,
-         std::optional<std::pair<uint64_t, uint64_t>> watch,
-         bool dbg) {
+Sim::Sim(const Config &config) {
     core = new Vcaster;
     Verilated::traceEverOn(true);
-    firmware = new Firmware(show_osd);
-    video_source = new VideoSource(source_type, panel_type);
-    panel = new Panel(panel_type, dbg);
-    vram = new Vram(watch);
-    if (enable_trace) {
+    firmware = new Firmware(config.show_osd);
+    video_source = new VideoSource(config.source_type, config.panel_type);
+    panel = new Panel(config.panel_type, config.panel_debug);
+    vram = new Vram(config.watch);
+    if (config.enable_trace) {
         trace = new VerilatedVcdC;
         core->trace(trace, 99);
         trace->open("trace.vcd");

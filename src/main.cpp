@@ -135,7 +135,14 @@ int main(int argc, char *argv[]) {
     Verilated::commandArgs(argc, argv);
 
     Display display(DISP_WIDTH, DISP_HEIGHT, DISP_FACTOR, opt.headless);
-    Sim sim(opt.trace, opt.osd, source_type, panel_type, watch, opt.panel_dbg);
+    Sim sim({
+        .enable_trace = opt.trace,
+        .show_osd = opt.osd,
+        .source_type = source_type,
+        .panel_type = panel_type,
+        .watch = watch,
+        .panel_debug = opt.panel_dbg,
+    });
 
     log_info("Simulation start.\n");
     sim.reset(display);
