@@ -9,6 +9,9 @@
 #include "stb_image_resize.h"
 #include "util.h"
 
+static constexpr int FRAMES_PER_IMAGE = 100;
+static constexpr int IMAGE_COUNT = 2;
+
 void print_buffer(uint8_t *buf, size_t bytes) {
     for (size_t i = 0; i < bytes / 16; i++) {
         for (int j = 0; j < 16; j++) {
@@ -209,15 +212,15 @@ void VideoSource::source_blink() {
 }
 
 void VideoSource::source_image() {
-    if ((frame_counter % 100) != 0) {
+    if ((frame_counter % FRAMES_PER_IMAGE) != 0) {
         frame_counter++;
-        if (frame_counter == 400)
+        if (frame_counter == FRAMES_PER_IMAGE * IMAGE_COUNT)
             frame_counter = 0;
         return;
     }
     frame_counter++;
     char fn[32];
-    snprintf(fn, sizeof(fn), "test%d.jpg", frame_counter / 100);
+    snprintf(fn, sizeof(fn), "test%d.jpg", frame_counter / FRAMES_PER_IMAGE);
     int x, y, n;
     uint8_t *data = load_image(fn, &x, &y, &n);
     log_debug("Input image size %d x %d (%d channels)\n", x, y, n);
