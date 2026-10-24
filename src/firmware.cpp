@@ -1,9 +1,8 @@
 #include "firmware.h"
 #include "int-api.h"
 #include "log.h"
+#include "panel.h"
 #include "spi.h"
-
-#include <cstdio>
 
 static constexpr int OSD_WIDTH = 320;
 static constexpr int OSD_HEIGHT = 200;
@@ -16,11 +15,11 @@ void Firmware::tick() {
         spi_write_reg8(CSR_CFG_V_FP, 3);
         spi_write_reg8(CSR_CFG_V_SYNC, 1);
         spi_write_reg8(CSR_CFG_V_BP, 2);
-        spi_write_reg16(CSR_CFG_V_ACT, 240);
+        spi_write_reg16(CSR_CFG_V_ACT, DISP_HEIGHT);
         spi_write_reg8(CSR_CFG_H_FP, 3);
         spi_write_reg8(CSR_CFG_H_SYNC, 1);
         spi_write_reg8(CSR_CFG_H_BP, 2);
-        spi_write_reg16(CSR_CFG_H_ACT, 80);
+        spi_write_reg16(CSR_CFG_H_ACT, DISP_WIDTH / 4);
         spi_write_reg8(CSR_CFG_MINDRV, 1);
 
         if (show_osd) {
