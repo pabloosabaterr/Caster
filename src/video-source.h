@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <string_view>
 #include <unordered_map>
+#include <vector>
 
 enum class SourceType {
     BOX,
@@ -37,7 +38,9 @@ struct VideoBus {
 
 class VideoSource {
   public:
-    explicit VideoSource(SourceType source, PanelType panel);
+    explicit VideoSource(SourceType source,
+                         PanelType panel,
+                         std::pair<uint64_t, uint64_t> res);
 
     void reset();
     void apply(VideoBus &bus);
@@ -53,7 +56,10 @@ class VideoSource {
     void source_blink();
     void source_image();
 
-    uint8_t pixels[DISP_WIDTH * DISP_HEIGHT];
+    int width;
+    int height;
+
+    std::vector<uint8_t> pixels;
     int x_counter = 0;
     int y_counter = 0;
     int frame_counter = 0;

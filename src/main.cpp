@@ -21,6 +21,7 @@ constexpr uint32_t SIM_STEP = 100000;
 /* Window events are checked this many times per SIM_STEP */
 constexpr uint32_t SIM_BATCHES = 10;
 
+/* Window size in points, the panel is scaled to fit it */
 constexpr int WIN_WIDTH = 640;
 constexpr int WIN_HEIGHT = 480;
 /* Window title update period, long enough to see several panel frames */
@@ -44,7 +45,8 @@ constexpr char HELP_MENU[] =
     "                           - fixed-color   four gray bands\n"
     "                           - fixed-swap    gray bands swapped every 100 frames\n"
     "                           - blink         full black and white, alternating\n"
-    "                           - image         test0.jpg, test1.jpg... scaled\n"
+    "                           - image         swaps between test0.jpg and\n"
+    "                                           test1.jpg scaled\n"
     " -p, --panel <panel>     panel type (default: mono):\n"
     "                           - mono\n"
     "                           - kaleido3\n"
@@ -53,7 +55,10 @@ constexpr char HELP_MENU[] =
 /* TODO: add new option that can handle multiple args: --watch x,y */
     "     --watch-x <x>       with --watch-y, print the VRAM state of the pixel\n"
     "     --watch-y <y>       at x,y every time Caster reads or writes it\n"
-    "     --digest            print a hash of the panel and VRAM output per frame\n";
+    "     --digest            print a hash of the panel and VRAM output per frame\n"
+    " -r, --resolution <w>x<h>\n"
+    "                         panel resolution, the width a multiple of 4\n"
+    "                         (default: 320x240)\n";
 /* clang-format on */
 
 struct SimOptions {
@@ -71,6 +76,27 @@ struct SimOptions {
     uint64_t watch_y = UINT64_MAX;
     std::string_view source = "box";
     std::string_view panel = "mono";
+    std::string_view resolution = "320x240";
+};
+
+static std::pair<uint64_t, uint64_t>
+parse_resolution(std::string_view resolution) {
+    size_t x = resolution.find('x');
+    uint64_t w, h;
+    if (x == std::string_view::npos ||
+        !parse_u64(resolution.substr(0, x), &w) ||
+        !parse_u64(resolution.substr(x + 1), &h))
+        die("invalid size '%.*s', expected <width>x<height>",
+            (int)resolution.size(),
+            resolution.data());
+    if (w == 0 || h == 0 || w > 4096 || h > 4096)
+        die("size must be between 1 and 4096, got %llux%llu",
+            (unsigned long long)w,
+            (unsigned long long)h);
+    if (w % 4)
+        die("width must be a multiple of 4, got %llu", (unsigned long long)w);
+
+    return {w, h};
 };
 
 static SimOptions opt;
@@ -92,6 +118,7 @@ int main(int argc, char *argv[]) {
         {0,   "watch-x",     &opt.watch_x},
         {0,   "watch-y",     &opt.watch_y},
         {0,   "digest",      &opt.digest},
+        {'r', "resolution",  &opt.resolution},
     };
     /* clang-format on */
 
@@ -126,22 +153,23 @@ int main(int argc, char *argv[]) {
 
     PanelType panel_type = parse_choice("panel", opt.panel, PANEL_TYPES);
     SourceType source_type = parse_choice("source", opt.source, SOURCE_TYPES);
+    std::pair<uint64_t, uint64_t> res = parse_resolution(opt.resolution);
+
     std::optional<std::pair<uint64_t, uint64_t>> watch;
     if ((opt.watch_x == UINT64_MAX) != (opt.watch_y == UINT64_MAX))
         die("--watch-x and --watch-y must be used together");
 
     if (opt.watch_x != UINT64_MAX) {
-        if (opt.watch_x >= DISP_WIDTH || opt.watch_y >= DISP_HEIGHT)
-            die("--watch-x and --watch-y must be inside the %dx%d panel",
-                DISP_WIDTH,
-                DISP_HEIGHT);
+        if (opt.watch_x >= res.first || opt.watch_y >= res.second)
+            die("--watch-x and --watch-y must be inside the %llux%llu panel",
+                (unsigned long long)res.first,
+                (unsigned long long)res.second);
         watch = {opt.watch_x, opt.watch_y};
     }
 
     Verilated::commandArgs(argc, argv);
 
-    Display display(
-        DISP_WIDTH, DISP_HEIGHT, WIN_WIDTH, WIN_HEIGHT, opt.headless);
+    Display display(res.first, res.second, WIN_WIDTH, WIN_HEIGHT, opt.headless);
     Sim sim({
         .enable_trace = opt.trace,
         .show_osd = opt.osd,
@@ -150,6 +178,7 @@ int main(int argc, char *argv[]) {
         .watch = watch,
         .panel_debug = opt.panel_dbg,
         .digest = opt.digest,
+        .res = res,
     });
 
     log_info("Simulation start.\n");

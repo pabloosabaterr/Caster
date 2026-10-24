@@ -1,10 +1,10 @@
+#include <algorithm>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include "video-source.h"
 #include "log.h"
-#include "panel.h"
 #include "stb_image.h"
 #include "stb_image_resize.h"
 #include "util.h"
@@ -24,7 +24,7 @@ void print_buffer(uint8_t *buf, size_t bytes) {
 uint8_t VideoSource::rgb2y(uint32_t r, uint32_t g, uint32_t b, int x, int y) {
     switch (panel) {
     case PanelType::KALEIDO3: {
-        int c = (x + (DISP_HEIGHT - y)) % 3;
+        int c = (x + (height - y)) % 3;
         if (c == 0)
             return r;
         else if (c == 1)
@@ -57,14 +57,17 @@ static uint8_t *load_image(const char *fn, int *x, int *y, int *n) {
     return data;
 }
 
-VideoSource::VideoSource(SourceType source, PanelType panel)
-    : panel(panel), source(source) {
+VideoSource::VideoSource(SourceType source,
+                         PanelType panel,
+                         std::pair<uint64_t, uint64_t> res)
+    : width(res.first), height(res.second), pixels(width * height),
+      panel(panel), source(source) {
 }
 
 void VideoSource::source_box() {
-    memset(pixels, 0xff, DISP_WIDTH * DISP_HEIGHT);
-    bool xright = (box_x == DISP_WIDTH - 21);
-    bool ydown = (box_y == DISP_HEIGHT - 21);
+    std::fill(pixels.begin(), pixels.end(), 0xff);
+    bool xright = (box_x == width - 21);
+    bool ydown = (box_y == height - 21);
     bool yup = (box_y == 0);
     bool xleft = (box_x == 0);
     if (box_dir == 0) {
@@ -141,35 +144,30 @@ void VideoSource::source_box() {
     uint32_t rptr = 0;
     for (int i = box_y; i < box_y + 20; i++) {
         for (int j = box_x; j < box_x + 20; j++) {
-            pixels[i * DISP_WIDTH + j] = box_texture[rptr++];
+            pixels[i * width + j] = box_texture[rptr++];
         }
     }
     frame_counter++;
 }
 
 void VideoSource::source_fixed_border() {
-    memset(pixels, 0xff, DISP_WIDTH * DISP_HEIGHT);
-    for (int i = 0; i < DISP_WIDTH; i++) {
+    std::fill(pixels.begin(), pixels.end(), 0xff);
+    for (int i = 0; i < width; i++) {
         pixels[i] = 0x00;
-        pixels[(DISP_HEIGHT - 1) * DISP_WIDTH + i] = 0x00;
+        pixels[(height - 1) * width + i] = 0x00;
     }
-    for (int i = 0; i < DISP_HEIGHT; i++) {
-        pixels[DISP_WIDTH * i] = 0x00;
-        pixels[DISP_WIDTH * i + DISP_WIDTH - 1] = 0x00;
+    for (int i = 0; i < height; i++) {
+        pixels[width * i] = 0x00;
+        pixels[width * i + width - 1] = 0x00;
     }
 }
 
 void VideoSource::source_fixed_color() {
-    memset(pixels, 0x00, DISP_WIDTH * DISP_HEIGHT / 4);
-    memset(pixels + DISP_WIDTH * DISP_HEIGHT / 4,
-           0x55,
-           DISP_WIDTH * DISP_HEIGHT / 4);
-    memset(pixels + DISP_WIDTH * DISP_HEIGHT / 2,
-           0xaa,
-           DISP_WIDTH * DISP_HEIGHT / 4);
-    memset(pixels + DISP_WIDTH * DISP_HEIGHT / 4 * 3,
-           0xff,
-           DISP_WIDTH * DISP_HEIGHT / 4);
+    size_t quarter = pixels.size() / 4;
+    std::fill_n(pixels.begin(), quarter, 0x00);
+    std::fill_n(pixels.begin() + quarter, quarter, 0x55);
+    std::fill_n(pixels.begin() + 2 * quarter, quarter, 0xaa);
+    std::fill_n(pixels.begin() + 3 * quarter, quarter, 0xff);
 }
 
 /* Full screen fixed color, reverse, 200 frames later */
@@ -186,16 +184,9 @@ void VideoSource::source_fixed_swap() {
         colors[2] = 0x55;
         colors[3] = 0x00;
     }
-    memset(pixels, colors[0], DISP_WIDTH * DISP_HEIGHT / 4);
-    memset(pixels + DISP_WIDTH * DISP_HEIGHT / 4,
-           colors[1],
-           DISP_WIDTH * DISP_HEIGHT / 4);
-    memset(pixels + DISP_WIDTH * DISP_HEIGHT / 2,
-           colors[2],
-           DISP_WIDTH * DISP_HEIGHT / 4);
-    memset(pixels + DISP_WIDTH * DISP_HEIGHT / 4 * 3,
-           colors[3],
-           DISP_WIDTH * DISP_HEIGHT / 4);
+    size_t quarter = pixels.size() / 4;
+    for (int i = 0; i < 4; i++)
+        std::fill_n(pixels.begin() + i * quarter, quarter, colors[i]);
     frame_counter++;
     if (frame_counter == 200)
         frame_counter = 0;
@@ -203,10 +194,10 @@ void VideoSource::source_fixed_swap() {
 
 void VideoSource::source_blink() {
     if (frame_counter) {
-        memset(pixels, 0x00, DISP_WIDTH * DISP_HEIGHT);
+        std::fill(pixels.begin(), pixels.end(), 0x00);
         frame_counter = 0;
     } else {
-        memset(pixels, 0xff, DISP_WIDTH * DISP_HEIGHT);
+        std::fill(pixels.begin(), pixels.end(), 0xff);
         frame_counter = 1;
     }
 }
@@ -224,51 +215,40 @@ void VideoSource::source_image() {
     int x, y, n;
     uint8_t *data = load_image(fn, &x, &y, &n);
     log_debug("Input image size %d x %d (%d channels)\n", x, y, n);
-    uint8_t *scaled = (uint8_t *)calloc(1, DISP_WIDTH * DISP_HEIGHT * n);
+    uint8_t *scaled = (uint8_t *)calloc(1, width * height * n);
     float scalex, scaley;
-    scalex = (float)DISP_WIDTH / (float)x;
-    scaley = (float)DISP_HEIGHT / (float)y;
+    scalex = (float)width / (float)x;
+    scaley = (float)height / (float)y;
     // Fit the image into destination size keeping aspect ratio
     int outh, outw, outstride, outoffset;
     if (scalex > scaley) {
-        outh = DISP_HEIGHT;
+        outh = height;
         outw = x * scaley;
-        outoffset = ((DISP_WIDTH - outw) / 2) * n;
-        outstride = x * n;
+        outoffset = ((width - outw) / 2) * n;
+        outstride = width * n;
     } else {
-        outw = DISP_WIDTH;
+        outw = width;
         outh = y * scalex;
-        outoffset = ((DISP_HEIGHT - outh) / 2) * n * DISP_WIDTH;
+        outoffset = ((height - outh) / 2) * n * width;
         outstride = 0;
     }
     stbir_resize_uint8(
         data, x, y, 0, scaled + outoffset, outw, outh, outstride, n);
     free(data);
     uint8_t *rdptr = scaled;
-    uint8_t *wrptr = pixels;
-    if (n == 4) {
-        for (int y = 0; y < DISP_HEIGHT; y++) {
-            for (int x = 0; x < DISP_WIDTH; x++) {
-                uint32_t r = *rdptr++;
-                uint32_t g = *rdptr++;
-                uint32_t b = *rdptr++;
-                // uint32_t a = *rdptr++;
-                uint32_t yy = rgb2y(r, g, b, x, y);
-                *wrptr++ = yy;
-            }
-        }
-    } else if (n == 3) {
-        for (int y = 0; y < DISP_HEIGHT; y++) {
-            for (int x = 0; x < DISP_WIDTH; x++) {
-                uint32_t r = *rdptr++;
-                uint32_t g = *rdptr++;
-                uint32_t b = *rdptr++;
-                uint32_t yy = rgb2y(r, g, b, x, y);
-                *wrptr++ = yy;
+    uint8_t *wrptr = pixels.data();
+    if (n == 4 || n == 3) {
+        for (int py = 0; py < height; py++) {
+            for (int px = 0; px < width; px++) {
+                uint32_t r = rdptr[0];
+                uint32_t g = rdptr[1];
+                uint32_t b = rdptr[2];
+                rdptr += n;
+                *wrptr++ = rgb2y(r, g, b, px, py);
             }
         }
     } else if (n == 1) {
-        memcpy(wrptr, rdptr, DISP_WIDTH * DISP_HEIGHT);
+        memcpy(wrptr, rdptr, width * height);
     }
     free(scaled);
 }
@@ -308,16 +288,16 @@ void VideoSource::apply(VideoBus &bus) {
     if (bus.ready) {
         uint32_t output = 0;
         for (int i = 0; i < 4; i++) {
-            uint32_t p = pixels[y_counter * DISP_WIDTH + x_counter++];
+            uint32_t p = pixels[y_counter * width + x_counter++];
             p = p << (3 - i) * 8;
             output |= p;
         }
         bus.pixel = output;
 
-        if (x_counter == DISP_WIDTH) {
+        if (x_counter == width) {
             x_counter = 0;
             y_counter++;
-            if (y_counter == DISP_HEIGHT) {
+            if (y_counter == height) {
                 y_counter = 0;
                 next_frame();
             }

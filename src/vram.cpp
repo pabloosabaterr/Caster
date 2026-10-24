@@ -2,22 +2,23 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include <string.h>
 #include <utility>
 #include "vram.h"
 #include "log.h"
 #include "util.h"
 
-Vram::Vram(std::optional<std::pair<uint64_t, uint64_t>> watch) {
+Vram::Vram(std::optional<std::pair<uint64_t, uint64_t>> watch,
+           std::pair<uint64_t, uint64_t> res)
+    : vram(res.first * res.second / 4) {
     if (watch) {
         auto [x, y] = *watch;
-        watch_word = (y * DISP_WIDTH + x) / 4;
+        watch_word = (y * res.first + x) / 4;
     }
     reset();
 }
 
 void Vram::reset() {
-    memset(vram, 0, VRAM_SIZE * sizeof(uint64_t));
+    std::fill(vram.begin(), vram.end(), 0);
     rdptr = 0;
     wrptr = 0;
     last_trigger = 0;
@@ -37,7 +38,7 @@ void Vram::apply(VramBus &bus) {
     }
     bus.bi_valid = 1;
     if (bus.bi_ready) {
-        if (rdptr >= VRAM_SIZE)
+        if (rdptr >= vram.size())
             die("VRAM read past the end (word %zu)", rdptr);
         bool watched = watch_word && rdptr == *watch_word;
         bus.bi_pixel = vram[rdptr++];
@@ -51,7 +52,7 @@ void Vram::apply(VramBus &bus) {
     }
 
     if (bus.bo_valid) {
-        if (wrptr >= VRAM_SIZE)
+        if (wrptr >= vram.size())
             die("VRAM write past the end (word %zu)", wrptr);
         if (watch_word && wrptr == *watch_word) {
             log_debug("Wr\n");

@@ -1,6 +1,5 @@
 #include <cstdint>
 #include <stdio.h>
-#include <string.h>
 
 #include "panel.h"
 #include "display.h"
@@ -9,15 +8,17 @@
 
 #define ACCEL 20
 
-Panel::Panel(PanelType type, bool dbg) : type(type), dbg(dbg) {
+Panel::Panel(PanelType type, bool dbg, std::pair<uint64_t, uint64_t> res)
+    : type(type), dbg(dbg), width(res.first), height(res.second),
+      localbuf(width * height), speedbuf(width * height) {
     reset();
 }
 
 void Panel::set_pixel(uint32_t *pixels, int x, int y, uint8_t input) {
     int32_t pixel;
-    if (x >= DISP_WIDTH)
+    if (x >= width)
         return;
-    if (y >= DISP_HEIGHT)
+    if (y >= height)
         return;
 
     if (dbg) {
@@ -29,8 +30,8 @@ void Panel::set_pixel(uint32_t *pixels, int x, int y, uint8_t input) {
          * slows it down. ACCEL and the 0.9 friction are not based on any real
          * panel, so transition times and ghosting are only indicative.
          */
-        pixel = localbuf[y * DISP_WIDTH + x];
-        int32_t speed = speedbuf[y * DISP_WIDTH + x];
+        pixel = localbuf[y * width + x];
+        int32_t speed = speedbuf[y * width + x];
         int8_t accel = (input == 1) ? (0 - ACCEL) : (input == 2) ? (ACCEL) : 0;
 
         speed += accel;
@@ -49,13 +50,13 @@ void Panel::set_pixel(uint32_t *pixels, int x, int y, uint8_t input) {
             pixel = 0;
 
         // otherwise, nop
-        localbuf[y * DISP_WIDTH + x] = pixel;
-        speedbuf[y * DISP_WIDTH + x] = speed;
+        localbuf[y * width + x] = pixel;
+        speedbuf[y * width + x] = speed;
     }
 
     switch (type) {
     case PanelType::KALEIDO3: {
-        int c = (x + (DISP_HEIGHT - y)) % 3;
+        int c = (x + (height - y)) % 3;
         if (c == 0)
             pixel = 0xff000000 | (pixel << 16);
         else if (c == 1)
@@ -69,16 +70,16 @@ void Panel::set_pixel(uint32_t *pixels, int x, int y, uint8_t input) {
         break;
     }
     }
-    pixels[y * DISP_WIDTH + x] = pixel;
+    pixels[y * width + x] = pixel;
 }
 
 void Panel::reset() {
     x_counter = 0;
     y_counter = 0;
     last_hs = 0;
-    memset(localbuf, 0xff, sizeof(localbuf));
+    std::fill(localbuf.begin(), localbuf.end(), 0xff);
     line_valid = false;
-    memset(speedbuf, 0, sizeof(speedbuf));
+    std::fill(speedbuf.begin(), speedbuf.end(), 0);
 }
 
 void Panel::render(Display &display) {

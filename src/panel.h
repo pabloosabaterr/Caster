@@ -4,11 +4,9 @@
 #include <cstdint>
 #include <string_view>
 #include <unordered_map>
+#include <vector>
 
 class Display;
-
-constexpr int DISP_WIDTH = 640;
-constexpr int DISP_HEIGHT = 480;
 
 struct PanelBus {
     uint8_t gdoe = 0;
@@ -33,7 +31,7 @@ inline const std::unordered_map<std::string_view, PanelType> PANEL_TYPES = {
 
 class Panel {
   public:
-    explicit Panel(PanelType type, bool dbg);
+    explicit Panel(PanelType type, bool dbg, std::pair<uint64_t, uint64_t> res);
 
     void reset();
     void apply(Display &display, const PanelBus &bus);
@@ -47,9 +45,12 @@ class Panel {
 
     PanelType type;
     bool dbg;
+    int width;
+    int height;
 
-    uint8_t localbuf[DISP_WIDTH * DISP_HEIGHT];
-    int8_t speedbuf[DISP_WIDTH * DISP_HEIGHT];
+    /* Particle model, one entry per pixel */
+    std::vector<uint8_t> localbuf;
+    std::vector<int8_t> speedbuf;
 
     int x_counter = 0;
     int y_counter = 0;

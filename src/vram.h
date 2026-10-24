@@ -1,11 +1,11 @@
 #ifndef VRAM_H
 #define VRAM_H
 
-#include "panel.h"
 #include <cstddef>
 #include <cstdint>
 #include <optional>
 #include <utility>
+#include <vector>
 
 /* Bus between Caster and the external VRAM. */
 struct VramBus {
@@ -22,16 +22,14 @@ struct VramBus {
 
 class Vram {
   public:
-    explicit Vram(std::optional<std::pair<uint64_t, uint64_t>> watch);
+    explicit Vram(std::optional<std::pair<uint64_t, uint64_t>> watch,
+                  std::pair<uint64_t, uint64_t> res);
 
     void apply(VramBus &bus);
     void reset();
 
   private:
-    /* 16 bits of state per pixel, 4 pixels per 64-bit word */
-    static constexpr std::size_t VRAM_SIZE = DISP_WIDTH * DISP_HEIGHT / 4;
-
-    uint64_t vram[VRAM_SIZE];
+    std::vector<uint64_t> vram;
     std::size_t rdptr = 0;
     std::size_t wrptr = 0;
     uint8_t last_trigger = 0;

@@ -9,7 +9,6 @@
 #include <Vcaster.h>
 #include <cstdint>
 #include <optional>
-#include <utility>
 #include "verilated_vcd_c.h"
 
 /* Legacy function required by some platforms/ versions of Verilator */
@@ -36,10 +35,11 @@ struct CoreInputs {
 Sim::Sim(const Config &config) {
     core = new Vcaster;
     Verilated::traceEverOn(true);
-    firmware = new Firmware(config.show_osd);
-    video_source = new VideoSource(config.source_type, config.panel_type);
-    panel = new Panel(config.panel_type, config.panel_debug);
-    vram = new Vram(config.watch);
+    firmware = new Firmware(config.res, config.show_osd);
+    video_source =
+        new VideoSource(config.source_type, config.panel_type, config.res);
+    panel = new Panel(config.panel_type, config.panel_debug, config.res);
+    vram = new Vram(config.watch, config.res);
     if (config.digest)
         digest.emplace();
     if (config.enable_trace) {

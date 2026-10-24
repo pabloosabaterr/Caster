@@ -26,6 +26,7 @@ class Sim {
         std::optional<std::pair<uint64_t, uint64_t>> watch;
         bool panel_debug = false;
         bool digest = false;
+        std::pair<uint64_t, uint64_t> res = {320, 240};
     };
 
     explicit Sim(const Config &config);
