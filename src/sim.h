@@ -1,6 +1,7 @@
 #ifndef SIM_H
 #define SIM_H
 
+#include "digest.h"
 #include "panel.h"
 #include "video-source.h"
 #include <cstdint>
@@ -24,10 +25,14 @@ class Sim {
         PanelType panel_type = PanelType::MONOCHROME;
         std::optional<std::pair<uint64_t, uint64_t>> watch;
         bool panel_debug = false;
+        bool digest = false;
     };
 
     explicit Sim(const Config &config);
     ~Sim();
+
+    /* Print the digest of the frame still in progress. */
+    void finish_digest();
 
     /* Hold the core in reset and reset every model. */
     void reset(Display &display);
@@ -47,6 +52,7 @@ class Sim {
     Vram *vram = nullptr;
     uint64_t tickcount = 0;
     VerilatedVcdC *trace = nullptr;
+    std::optional<Digest> digest;
 };
 
 #endif

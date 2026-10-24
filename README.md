@@ -94,6 +94,7 @@ Caster simulator usage:
                          simulated ink, mostly dark (default: off)
      --watch-x <x>       with --watch-y, print the VRAM state of the pixel
      --watch-y <y>       at x,y every time Caster reads or writes it
+     --digest            print a hash of the panel and VRAM output per frame
 ```
 
 Options that take a value also accept `--option=value`, for example
