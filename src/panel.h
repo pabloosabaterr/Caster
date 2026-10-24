@@ -7,8 +7,8 @@
 
 class Display;
 
-constexpr int DISP_WIDTH = 320;
-constexpr int DISP_HEIGHT = 240;
+constexpr int DISP_WIDTH = 640;
+constexpr int DISP_HEIGHT = 480;
 
 struct PanelBus {
     uint8_t gdoe = 0;
@@ -37,6 +37,9 @@ class Panel {
 
     void reset();
     void apply(Display &display, const PanelBus &bus);
+    uint64_t frame_count() const {
+        return frame_count_;
+    }
 
   private:
     void set_pixel(uint32_t *pixels, int x, int y, uint8_t input);
@@ -53,8 +56,7 @@ class Panel {
     int last_hs = 0;
     bool line_valid = false;
 
-    float time_delta = 0.0f;
-    uint32_t last_ticks = 0;
+    uint64_t frame_count_ = 0;
 };
 
 #endif

@@ -77,9 +77,7 @@ void Panel::reset() {
     y_counter = 0;
     last_hs = 0;
     memset(localbuf, 0xff, sizeof(localbuf));
-    last_ticks = SDL_GetTicks();
     line_valid = false;
-    time_delta = 0;
     memset(speedbuf, 0, sizeof(speedbuf));
 }
 
@@ -87,19 +85,7 @@ void Panel::render(Display &display) {
     if (display.is_headless())
         return;
 
-    const float TARGET_FPS = 60.0f;
-
-    int cur_ticks = SDL_GetTicks();
-    time_delta -=
-        cur_ticks - last_ticks; // Actual ticks passed since last iteration
-    time_delta += 1000.0f / TARGET_FPS; // Time allocated for this iteration
-    last_ticks = cur_ticks;
-
     display.present();
-
-    int time_to_wait = time_delta - (SDL_GetTicks() - last_ticks);
-    if (time_to_wait > 0)
-        SDL_Delay(time_to_wait);
 }
 
 void Panel::apply(Display &display, const PanelBus &bus) {
@@ -116,6 +102,7 @@ void Panel::apply(Display &display, const PanelBus &bus) {
         if (vs) {
             y_counter = 0;
             line_valid = false;
+            frame_count_++;
             render(display);
         } else {
             if (line_valid)

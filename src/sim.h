@@ -44,6 +44,10 @@ class Sim {
         return tickcount;
     }
 
+    uint64_t panel_frames() const {
+        return panel->frame_count();
+    }
+
   private:
     Vcaster *core = nullptr;
     Firmware *firmware = nullptr;

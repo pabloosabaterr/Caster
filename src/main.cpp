@@ -23,6 +23,8 @@ constexpr uint32_t SIM_BATCHES = 10;
 
 constexpr int WIN_WIDTH = 640;
 constexpr int WIN_HEIGHT = 480;
+/* Window title update period, long enough to see several panel frames */
+constexpr uint32_t TITLE_MS = 500;
 
 constexpr int CASTER_SIM_VERSION[3] = {0, 1, 0};
 /* clang-format off */
@@ -154,6 +156,8 @@ int main(int argc, char *argv[]) {
     sim.reset(display);
 
     uint32_t ms_tick = SDL_GetTicks();
+    uint64_t last_frames = 0;
+    uint64_t last_cycles = 0;
     bool running = true;
     while (running) {
         for (uint32_t batch = 0; batch < SIM_BATCHES && running; batch++) {
@@ -169,14 +173,26 @@ int main(int argc, char *argv[]) {
                 running = false;
         }
 
-        uint32_t ms_delta = SDL_GetTicks() - ms_tick;
-        if (ms_delta) {
-            char title[50];
-            uint32_t khz = SIM_STEP / ms_delta;
-            snprintf(title, sizeof(title), "Caster Sim (%u kHz)", khz);
+        uint32_t now = SDL_GetTicks();
+        uint32_t ms_delta = now - ms_tick;
+        if (ms_delta >= TITLE_MS) {
+            uint64_t frames = sim.panel_frames();
+            uint64_t cycles = sim.cycles();
+            uint64_t khz = (cycles - last_cycles) / ms_delta;
+            double fps = (frames - last_frames) * 1000.0 / ms_delta;
+
+            char title[64];
+            snprintf(title,
+                     sizeof(title),
+                     "Caster Sim (%llu kHz, %.1f fps)",
+                     (unsigned long long)khz,
+                     fps);
             display.set_title(title);
+
+            last_frames = frames;
+            last_cycles = cycles;
+            ms_tick = now;
         }
-        ms_tick = SDL_GetTicks();
     }
 
     sim.finish_digest();
